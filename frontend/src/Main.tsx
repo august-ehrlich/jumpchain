@@ -1,7 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-
-const App = () => <h1>Vite is running in Docker with TypeScript!</h1>
+import App from './App.js'
 
 // The '!' asserts that the element will not be null
 ReactDOM.createRoot(document.getElementById('root')!).render(
