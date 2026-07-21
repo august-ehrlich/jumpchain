@@ -1,7 +1,7 @@
 from fastapi import FastAPI
+import routers
 
 app = FastAPI()
 
-@app.get("/")
-def read_root():
-    return {"message": "FastAPI is running and hot-reloading!"}
+# Mounts the endpoints under the /documents path
+app.include_router(routers.document_router)
