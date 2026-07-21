@@ -3,10 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from core.database import get_db
 import crud, schemas
 
-router = APIRouter(prefix="/documents", tags=["Documents"])
-
-
-router = APIRouter()
+router = APIRouter(prefix="/document", tags=["Documents"])
 
 @router.get("/{document_id}", response_model=schemas.DocumentResponse)
 async def read_document(document_id: int, db: AsyncSession = Depends(get_db)):
