@@ -30,3 +30,22 @@ async def create_document(db: AsyncSession, document: DocumentCreate):
     await db.commit()
 
     return await get_document(db, db_document.id)
+
+async def get_all_documents(db: AsyncSession):
+    stmt = select(Document).options(
+        selectinload(Document.origins).selectinload(Origin.perk_discounts),
+        selectinload(Document.perks).selectinload(Perk.origin_discounts),
+        selectinload(Document.items),
+        selectinload(Document.drawbacks).selectinload(Drawback.locked_origins)
+        )
+    result = await db.execute(stmt)
+    return result.scalars().unique().all()
+
+async def delete_document(db: AsyncSession, document_id: int):
+    db_document = await get_document(db, document_id)
+    if not db_document:
+        return False
+        
+    await db.delete(db_document)
+    await db.commit()
+    return True
