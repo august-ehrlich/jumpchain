@@ -1,6 +1,7 @@
 import { Document } from '../../types/document';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { TraitList } from './TraitList';
+import ReactMarkdown from 'react-markdown';
 
 export function DocumentTabs({ document }: { document: Document }) {
   if (!document.categories || document.categories.length === 0) {
@@ -22,6 +23,20 @@ export function DocumentTabs({ document }: { document: Document }) {
       
       {document.categories.map((cat) => (
         <TabsContent key={cat.id} value={cat.id.toString()}>
+          {cat.summary && (
+            <div className="text-sm text-muted-foreground mt-2 mb-4 max-h-40 overflow-y-auto pr-3">
+              <ReactMarkdown 
+                components={{
+                  ul: ({node, ...props}) => <ul className="list-disc pl-5 mt-2 space-y-1" {...props} />,
+                  ol: ({node, ...props}) => <ol className="list-decimal pl-5 mt-2 space-y-1" {...props} />,
+                  strong: ({node, ...props}) => <strong className="font-semibold text-foreground" {...props} />,
+                  a: ({node, ...props}) => <a className="text-primary underline underline-offset-4" {...props} />
+                }}
+              >
+                {cat.summary}
+              </ReactMarkdown>
+            </div>
+          )}
           <TraitList items={cat.traits} hasCost={cat.has_cost} allCategories={document.categories} />
         </TabsContent>
       ))}

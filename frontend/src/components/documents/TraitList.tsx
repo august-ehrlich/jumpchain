@@ -44,7 +44,11 @@ export function TraitList({ items, hasCost, allCategories }: TraitListProps) {
             <CardHeader className="py-3 flex flex-row items-start justify-between space-y-0">
               <div>
                 <CardTitle className="text-base">{item.name}</CardTitle>
-                
+                {item.subtitle && (
+                  <p className="text-sm text-muted-foreground italic mt-0.5">
+                    {item.subtitle}
+                  </p>
+                )}
                 {discountsByValue.size > 0 && (
                   <div className="flex flex-wrap gap-2 mt-2">
                     {Array.from(discountsByValue.entries()).map(([value, sources], idx) => (
@@ -55,7 +59,6 @@ export function TraitList({ items, hasCost, allCategories }: TraitListProps) {
                   </div>
                 )}
               </div>
-
               {hasCost && (
                 <Badge variant={item.cost < 0 ? "default" : "outline"} className={item.cost < 0 ? "bg-emerald-600 hover:bg-emerald-700 text-white shrink-0" : "shrink-0"}>
                   {item.cost === 0 ? 'Free' : (item.cost < 0 ? `+${Math.abs(item.cost)} CP` : `-${item.cost} CP`)}
@@ -65,13 +68,10 @@ export function TraitList({ items, hasCost, allCategories }: TraitListProps) {
             <CardContent className="py-3 pt-0 text-sm text-muted-foreground">
               <ReactMarkdown 
                 components={{
-                  // Restore bullet points
+                  p: ({node, ...props}) => <p className="mb-4 last:mb-0" {...props} />,
                   ul: ({node, ...props}) => <ul className="list-disc pl-5 mt-2 space-y-1" {...props} />,
-                  // Restore numbered lists
                   ol: ({node, ...props}) => <ol className="list-decimal pl-5 mt-2 space-y-1" {...props} />,
-                  // Ensure bold text stands out against the muted foreground
                   strong: ({node, ...props}) => <strong className="font-semibold text-foreground" {...props} />,
-                  // Optional: style links if users include them
                   a: ({node, ...props}) => <a className="text-primary underline underline-offset-4" {...props} />
                 }}
               >

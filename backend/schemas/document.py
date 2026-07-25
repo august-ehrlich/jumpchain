@@ -2,30 +2,40 @@ from pydantic import BaseModel, ConfigDict
 from typing import List, Optional
 
 # ==========================================
-# TRAIT SCHEMAS (Replaces Origins, Perks, etc.)
+# DISCOUNT SCHEMAS (Must be defined first!)
+# ==========================================
+class DiscountUpdate(BaseModel):
+    source_trait_id: int
+    discount: int
+
+class DiscountResponse(BaseModel):
+    source_trait_id: int
+    discount: int
+    model_config = ConfigDict(from_attributes=True)
+
+# ==========================================
+# TRAIT SCHEMAS
 # ==========================================
 class TraitBase(BaseModel):
     name: str
     description: str
     cost: int
+    subtitle: Optional[str] = None
 
 class TraitCreate(TraitBase):
     id: int
     discounts_received: List[DiscountUpdate] = []
 
-class TraitUpdate(BaseModel):
+# Inherit from TraitBase so it gets name, description, cost, and subtitle automatically
+class TraitUpdate(TraitBase):
     id: int
-    name: str
-    description: str
-    cost: int
     discounts_received: List[DiscountUpdate] = []
 
 class TraitResponse(TraitBase):
     id: int
     category_id: int
-
-    model_config = ConfigDict(from_attributes=True)
     discounts_received: List[DiscountResponse] = []
+    model_config = ConfigDict(from_attributes=True)
 
 # ==========================================
 # CATEGORY SCHEMAS
@@ -33,22 +43,20 @@ class TraitResponse(TraitBase):
 class CategoryBase(BaseModel):
     name: str
     has_cost: bool = True
+    summary: Optional[str] = None
 
 class CategoryCreate(CategoryBase):
-    # Allows creating a category with traits already inside it
     traits: List[TraitCreate] = []
 
-class CategoryUpdate(BaseModel):
+# Inherit from CategoryBase so it gets name, has_cost, and summary automatically
+class CategoryUpdate(CategoryBase):
     id: int
-    name: str
-    has_cost: bool
     traits: List[TraitUpdate]
 
 class CategoryResponse(CategoryBase):
     id: int
     document_id: int
     traits: List[TraitResponse] = []
-
     model_config = ConfigDict(from_attributes=True)
 
 # ==========================================
@@ -60,7 +68,6 @@ class DocumentBase(BaseModel):
     summary: str
 
 class DocumentCreate(DocumentBase):
-    # Allows creating a full document with all categories and traits in one POST request
     categories: List[CategoryCreate] = []
 
 class DocumentUpdate(BaseModel):
@@ -72,14 +79,4 @@ class DocumentUpdate(BaseModel):
 class Document(DocumentBase):
     id: int
     categories: List[CategoryResponse] = []
-
-    model_config = ConfigDict(from_attributes=True)
-
-class DiscountUpdate(BaseModel):
-    source_trait_id: int
-    discount: int
-
-class DiscountResponse(BaseModel):
-    source_trait_id: int
-    discount: int
     model_config = ConfigDict(from_attributes=True)

@@ -128,4 +128,30 @@
   html {
     @apply font-sans;
   }
+/* WebKit Browsers (Chrome, Edge, Safari) */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    /* Uses your theme's primary green */
+    background: var(--primary); 
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    /* Optional: uses color-mix to slightly darken/lighten the green on hover */
+    background: color-mix(in oklch, var(--primary), var(--foreground) 15%);
+  }
+
+}
+
+.hide-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
 }

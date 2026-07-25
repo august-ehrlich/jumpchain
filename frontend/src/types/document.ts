@@ -6,6 +6,7 @@ export interface Discount {
 export interface Trait {
   id: number;
   name: string;
+  subtitle?: string;
   description: string;
   cost: number;
   discounts_received: Discount[];
@@ -14,6 +15,7 @@ export interface Trait {
 export interface TraitCategory {
   id: number;
   name: string;
+  summary?: string;
   has_cost: boolean;
   traits: Trait[];
 }

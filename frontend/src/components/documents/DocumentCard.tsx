@@ -69,9 +69,10 @@ export function DocumentCard({ doc, onClick, onEdit, onDelete }: DocumentCardPro
         <CardTitle className="group-hover:text-primary transition-colors pr-16">{doc.title}</CardTitle>
         <CardDescription className="font-medium">{doc.choice_points} CP</CardDescription>
       </CardHeader>
-      <CardContent className="py-3 pt-0 text-sm text-muted-foreground">
+      <CardContent className="py-3 pt-0 text-sm text-muted-foreground line-clamp-5 overflow-hidden [&>*]:inline [&>p]:inline">
         <ReactMarkdown
           components={{
+            p: ({node, ...props}) => <p className="mb-4 last:mb-0" {...props} />,
             ul: ({node, ...props}) => <ul className="list-disc pl-5 mt-2 space-y-1" {...props} />,
             ol: ({node, ...props}) => <ol className="list-decimal pl-5 mt-2 space-y-1" {...props} />,
             strong: ({node, ...props}) => <strong className="font-semibold text-foreground" {...props} />,

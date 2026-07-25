@@ -13,7 +13,7 @@ class Document(Base):
 
     # A document now has many custom categories
     categories: Mapped[list["TraitCategory"]] = relationship(
-        back_populates="document", cascade="all, delete-orphan"
+        back_populates="document", cascade="all, delete-orphan", order_by="TraitCategory.sort_order"
     )
 
 class TraitCategory(Base):
@@ -23,11 +23,11 @@ class TraitCategory(Base):
     document_id: Mapped[int] = mapped_column(ForeignKey("documents.id", ondelete="CASCADE"))
     
     name: Mapped[str] = mapped_column(String(255))
-    
     has_cost: Mapped[bool] = mapped_column(Boolean, default=True)
-
     document: Mapped["Document"] = relationship(back_populates="categories")
-    
+    summary: Mapped[str | None] = mapped_column(Text, nullable=True)
+    sort_order: Mapped[int] = mapped_column(Integer, server_default="0", default=0)
+
     traits: Mapped[list["Trait"]] = relationship(
         back_populates="category", cascade="all, delete-orphan"
     )
@@ -49,6 +49,7 @@ class Trait(Base):
     name: Mapped[str] = mapped_column(String(255))
     description: Mapped[str] = mapped_column(Text)
     cost: Mapped[int] = mapped_column(Integer, default=0)
+    subtitle: Mapped[str | None] = mapped_column(String(255), nullable=True)
 
     category: Mapped["TraitCategory"] = relationship(back_populates="traits")
 

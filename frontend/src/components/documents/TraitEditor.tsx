@@ -139,6 +139,7 @@ export function TraitEditor({ items = [], onChange, traitName, hasCost, allCateg
           <CardContent className="space-y-3">
             <div className="flex gap-4 pr-10">
               <Input placeholder="Name" value={item.name} onChange={(e) => updateItem(idx, 'name', e.target.value)} className="flex-1 font-semibold" />
+              <Input placeholder="Subtitle (Optional)" value={item.subtitle} onChange={(e) => updateItem(idx, 'subtitle', e.target.value)} className="flex-1"/>
               {hasCost && (
                 <Input type="number" placeholder="Cost" value={item.cost} onChange={(e) => updateItem(idx, 'cost', parseInt(e.target.value) || 0)} className="w-24" />
               )}

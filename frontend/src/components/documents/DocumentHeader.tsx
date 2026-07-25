@@ -19,20 +19,19 @@ export function DocumentHeader({ document }: HeaderProps) {
 
       <div className="space-y-2 mt-4">
         <p className="text-sm font-semibold text-muted-foreground">{document.choice_points} Starting CP</p>
+        <div className="max-h-64 overflow-y-auto pr-3">
           <ReactMarkdown 
             components={{
-              // Restore bullet points
+              p: ({node, ...props}) => <p className="mb-4 last:mb-0" {...props} />,
               ul: ({node, ...props}) => <ul className="list-disc pl-5 mt-2 space-y-1" {...props} />,
-              // Restore numbered lists
               ol: ({node, ...props}) => <ol className="list-decimal pl-5 mt-2 space-y-1" {...props} />,
-              // Ensure bold text stands out against the muted foreground
               strong: ({node, ...props}) => <strong className="font-semibold text-foreground" {...props} />,
-              // Optional: style links if users include them
               a: ({node, ...props}) => <a className="text-primary underline underline-offset-4" {...props} />
             }}
           >
             {document.summary}
           </ReactMarkdown>
+        </div>
       </div>
     </>
   );

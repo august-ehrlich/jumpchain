@@ -36,14 +36,15 @@ async def create_document(db: AsyncSession, document: DocumentCreate):
     id_mapping: dict[int, Trait] = {}
     
     # Pass 1: Create categories and traits
-    for cat_create in document.categories:
-        db_category = TraitCategory(name=cat_create.name, has_cost=cat_create.has_cost)
+    for idx, cat_create in enumerate(document.categories):
+        db_category = TraitCategory(name=cat_create.name, has_cost=cat_create.has_cost, summary=cat_create.summary, sort_order=idx)
         
         for trait_create in cat_create.traits:
             db_trait = Trait(
                 name=trait_create.name,
                 description=trait_create.description,
                 cost=trait_create.cost,
+                subtitle=trait_create.subtitle,
                 discounts_received=[]
             )
             db_category.traits.append(db_trait)
@@ -103,6 +104,7 @@ def sync_traits(db_traits: list[Trait], incoming_traits: list[TraitUpdate], id_m
             existing.name = incoming.name
             existing.description = incoming.description
             existing.cost = incoming.cost
+            existing.subtitle = incoming.subtitle
             id_mapping[incoming.id] = existing
             
         elif incoming.id < 0:
@@ -110,6 +112,7 @@ def sync_traits(db_traits: list[Trait], incoming_traits: list[TraitUpdate], id_m
                 name=incoming.name,
                 description=incoming.description,
                 cost=incoming.cost,
+                subtitle=incoming.subtitle,
                 discounts_received=[]
             )
             db_traits.append(new_trait)
@@ -123,15 +126,17 @@ def sync_categories(db_categories: list[TraitCategory], incoming_categories: lis
     for cat in items_to_remove:
         db_categories.remove(cat)
         
-    for incoming in incoming_categories:
+    for idx, incoming in enumerate(incoming_categories):
         if incoming.id > 0 and incoming.id in existing_map:
             existing = existing_map[incoming.id]
             existing.name = incoming.name
             existing.has_cost = incoming.has_cost
+            existing.summary = incoming.summary
+            existing.sort_order = idx
             sync_traits(existing.traits, incoming.traits, id_mapping)
             
         elif incoming.id < 0:
-            new_category = TraitCategory(name=incoming.name, has_cost=incoming.has_cost)
+            new_category = TraitCategory(name=incoming.name, has_cost=incoming.has_cost, summary=incoming.summary, sort_order=idx)
             db_categories.append(new_category)
             sync_traits(new_category.traits, incoming.traits, id_mapping)
 

@@ -56,7 +56,7 @@ export default function DocumentListView() {
       </div>
 
       <Dialog open={selectedDoc !== null} onOpenChange={(isOpen) => !isOpen && setSelectedDoc(null)}>
-        <DialogContent className="max-w-5xl max-h-[85vh] overflow-y-auto">
+        <DialogContent className="max-w-5xl max-h-[85vh] overflow-y-auto hide-scrollbar">
           {selectedDoc && <DocumentViewer documentId={selectedDoc.id} />}
         </DialogContent>
       </Dialog>

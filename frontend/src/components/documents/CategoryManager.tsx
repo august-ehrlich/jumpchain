@@ -1,3 +1,4 @@
+import { Textarea } from '#components/ui/textarea';
 import { TraitCategory } from '../../types/document';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -36,25 +37,34 @@ export function CategoryManager({ categories, onChange }: CategoryManagerProps) 
     <div className="space-y-3 mt-6 border-t pt-4">
       <Label className="text-base">Manage Categories</Label>
       {categories.map((cat, idx) => (
-        <div key={cat.id} className="flex items-center gap-3 bg-muted/30 p-2 rounded-md">
-          <Input 
-            placeholder="Category Name (e.g., Powers)" 
-            value={cat.name} 
-            onChange={(e) => updateCategory(idx, 'name', e.target.value)} 
-            className="flex-1"
-          />
-          <label className="flex items-center gap-2 text-sm cursor-pointer whitespace-nowrap">
-            <input 
-              type="checkbox" 
-              checked={cat.has_cost} 
-              onChange={(e) => updateCategory(idx, 'has_cost', e.target.checked)} 
-              className="w-4 h-4 accent-primary"
+        <div key={cat.id} className="flex flex-col gap-3 bg-muted/30 p-2 rounded-md">
+          <div className="flex items-center gap-3 w-full">
+            <Input 
+              placeholder="Category Name (e.g., Powers)" 
+              value={cat.name} 
+              onChange={(e) => updateCategory(idx, 'name', e.target.value)} 
+              className="flex-1"
             />
-            Has Cost?
-          </label>
-          <Button type="button" variant="ghost" size="icon" className="text-destructive h-8 w-8" onClick={() => removeCategory(idx)}>
-            <Trash2 className="h-4 w-4" />
-          </Button>
+            <label className="flex items-center gap-2 text-sm cursor-pointer whitespace-nowrap">
+              <input 
+                type="checkbox" 
+                checked={cat.has_cost} 
+                onChange={(e) => updateCategory(idx, 'has_cost', e.target.checked)} 
+                className="w-4 h-4 accent-primary"
+              />
+              Has Cost?
+            </label>
+            <Button type="button" variant="ghost" size="icon" className="text-destructive h-8 w-8 shrink-0" onClick={() => removeCategory(idx)}>
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
+          <Textarea 
+            placeholder="Summary (Optional)" 
+            value={cat.summary} 
+            onChange={(e) => updateCategory(idx, 'summary', e.target.value)}
+            className="w-full" 
+          />
+
         </div>
       ))}
       <Button type="button" variant="outline" size="sm" onClick={addCategory} className="w-full border-dashed">
