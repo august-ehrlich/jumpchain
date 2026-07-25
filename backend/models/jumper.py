@@ -1,8 +1,7 @@
 from sqlalchemy import String, Integer, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from core.database import Base
-from .associations import build_perks, build_items, build_drawbacks
-from .document import Document, Origin, Perk, Item, Drawback
+from .document import Document
 
 class Jumper(Base):
     __tablename__ = "jumpers"
@@ -24,15 +23,8 @@ class Build(Base):
     document_id: Mapped[int] = mapped_column(ForeignKey("documents.id", ondelete="CASCADE"))
     
     # The specific choices made in this run
-    selected_origin_id: Mapped[int | None] = mapped_column(ForeignKey("origins.id", ondelete="SET NULL"), nullable=True)
     remaining_cp: Mapped[int] = mapped_column(Integer, default=0)
 
     # Relationships back to the core entities
     jumper: Mapped["Jumper"] = relationship(back_populates="builds")
     document: Mapped["Document"] = relationship()
-    origin: Mapped["Origin"] = relationship()
-
-    # Many-to-Many relationships bridging to the purchased traits
-    perks: Mapped[list["Perk"]] = relationship(secondary=build_perks)
-    items: Mapped[list["Item"]] = relationship(secondary=build_items)
-    drawbacks: Mapped[list["Drawback"]] = relationship(secondary=build_drawbacks)

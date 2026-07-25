@@ -1,81 +1,85 @@
 from pydantic import BaseModel, ConfigDict
-from typing import List
+from typing import List, Optional
 
-
-# ORIGIN SCHEMAS
-class OriginBase(BaseModel):
+# ==========================================
+# TRAIT SCHEMAS (Replaces Origins, Perks, etc.)
+# ==========================================
+class TraitBase(BaseModel):
     name: str
+    description: str
     cost: int
-    description: str
 
-class OriginCreate(OriginBase):
-    pass
-
-class OriginResponse(OriginBase):
+class TraitCreate(TraitBase):
     id: int
-    model_config = ConfigDict(from_attributes=True)
+    discounts_received: List[DiscountUpdate] = []
 
-
-# PERK SCHEMAS
-class PerkBase(BaseModel):
+class TraitUpdate(BaseModel):
+    id: int
     name: str
+    description: str
     cost: int
-    description: str
+    discounts_received: List[DiscountUpdate] = []
 
-class PerkCreate(PerkBase):
-    pass
-
-class PerkResponse(PerkBase):
+class TraitResponse(TraitBase):
     id: int
+    category_id: int
+
     model_config = ConfigDict(from_attributes=True)
+    discounts_received: List[DiscountResponse] = []
 
-
-# ITEM SCHEMAS
-class ItemBase(BaseModel):
+# ==========================================
+# CATEGORY SCHEMAS
+# ==========================================
+class CategoryBase(BaseModel):
     name: str
-    cost: int
-    description: str
+    has_cost: bool = True
 
-class ItemCreate(ItemBase):
-    pass
+class CategoryCreate(CategoryBase):
+    # Allows creating a category with traits already inside it
+    traits: List[TraitCreate] = []
 
-class ItemResponse(ItemBase):
+class CategoryUpdate(BaseModel):
     id: int
-    model_config = ConfigDict(from_attributes=True)
-
-
-# DRAWBACK SCHEMAS
-class DrawbackBase(BaseModel):
     name: str
-    profit: int
-    description: str
+    has_cost: bool
+    traits: List[TraitUpdate]
 
-class DrawbackCreate(DrawbackBase):
-    pass
-
-class DrawbackResponse(DrawbackBase):
+class CategoryResponse(CategoryBase):
     id: int
+    document_id: int
+    traits: List[TraitResponse] = []
+
     model_config = ConfigDict(from_attributes=True)
 
-
+# ==========================================
 # DOCUMENT SCHEMAS
+# ==========================================
 class DocumentBase(BaseModel):
     title: str
     choice_points: int
     summary: str
 
 class DocumentCreate(DocumentBase):
-    origins: List[OriginCreate] = []
-    perks: List[PerkCreate] = []
-    items: List[ItemCreate] = []
-    drawbacks: List[DrawbackCreate] = []
+    # Allows creating a full document with all categories and traits in one POST request
+    categories: List[CategoryCreate] = []
 
-class DocumentResponse(DocumentBase):
+class DocumentUpdate(BaseModel):
+    title: Optional[str] = None
+    choice_points: Optional[int] = None
+    summary: Optional[str] = None
+    categories: Optional[List[CategoryUpdate]] = None
+
+class Document(DocumentBase):
     id: int
-    
-    origins: List[OriginResponse] = []
-    perks: List[PerkResponse] = []
-    items: List[ItemResponse] = []
-    drawbacks: List[DrawbackResponse] = []
-    
+    categories: List[CategoryResponse] = []
+
+    model_config = ConfigDict(from_attributes=True)
+
+class DiscountUpdate(BaseModel):
+    source_trait_id: int
+    discount: int
+
+class DiscountResponse(BaseModel):
+    source_trait_id: int
+    discount: int
     model_config = ConfigDict(from_attributes=True)

@@ -1,4 +1,4 @@
 # pyright: reportUnusedImport = false
 
-from .document import OriginCreate, DocumentCreate, PerkCreate, ItemCreate, DrawbackCreate, OriginResponse, DocumentResponse, PerkResponse, ItemResponse, DrawbackResponse
+from .document import DocumentCreate, DocumentUpdate, Document, TraitUpdate, TraitCreate, TraitResponse, CategoryCreate, CategoryUpdate, CategoryResponse
 from .jumper import JumperCreate, JumperResponse, BuildCreate, BuildResponse

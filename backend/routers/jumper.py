@@ -15,7 +15,3 @@ async def read_jumper(jumper_id: int, db: AsyncSession = Depends(get_db)):
 @router.post("/", response_model=schemas.JumperResponse)
 async def create_jumper(jumper: schemas.JumperCreate, db: AsyncSession = Depends(get_db)):
     return await crud.create_jumper(db=db, jumper=jumper)
-
-@router.post("/build/create", response_model=schemas.BuildResponse)
-async def create_build(build: schemas.BuildCreate, db: AsyncSession = Depends(get_db)):
-    return await crud.create_build(db, build)

@@ -1,39 +1,27 @@
-export interface Origin {
-  id: number;
-  name: string;
-  cost: number;
-  description: string;
+export interface Discount {
+  source_trait_id: number;
+  discount: number;
 }
 
-export interface Perk {
+export interface Trait {
   id: number;
   name: string;
-  cost: number;
   description: string;
+  cost: number;
+  discounts_received: Discount[];
 }
 
-export interface Item {
+export interface TraitCategory {
   id: number;
   name: string;
-  cost: number;
-  description: string;
+  has_cost: boolean;
+  traits: Trait[];
 }
 
-export interface Drawback {
-  id: number;
-  name: string;
-  profit: number;
-  description: string;
-}
 export interface Document {
   id: number;
   title: string;
   choice_points: number;
   summary: string;
-  
-  // Nested relationships
-  origins: Origin[];
-  perks: Perk[];
-  items: Item[];
-  drawbacks: Drawback[];
+  categories: TraitCategory[];
 }
