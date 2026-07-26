@@ -2,6 +2,7 @@ import { Trait, TraitCategory } from '../../types/document';
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
 import { Badge } from '../ui/badge';
 import ReactMarkdown from "react-markdown"
+import remarkGfm from 'remark-gfm';
 
 interface TraitListProps {
   items: Trait[] | undefined;
@@ -43,7 +44,14 @@ export function TraitList({ items, hasCost, allCategories }: TraitListProps) {
           <Card key={item.id}>
             <CardHeader className="py-3 flex flex-row items-start justify-between space-y-0">
               <div>
-                <CardTitle className="text-base">{item.name}</CardTitle>
+                <CardTitle className="text-base flex items-center gap-2">
+                  {item.name}
+                  {item.is_modifier && (
+                    <Badge className="h-5 px-2 text-[10px] uppercase tracking-wider font-semibold bg-primary-foreground text-white">
+                      Modifier
+                    </Badge>
+                  )}
+                </CardTitle>
                 {item.subtitle && (
                   <p className="text-sm text-muted-foreground italic mt-0.5">
                     {item.subtitle}
@@ -60,14 +68,16 @@ export function TraitList({ items, hasCost, allCategories }: TraitListProps) {
                 )}
               </div>
               {hasCost && (
-                <Badge variant={item.cost < 0 ? "default" : "outline"} className={item.cost < 0 ? "bg-emerald-600 hover:bg-emerald-700 text-white shrink-0" : "shrink-0"}>
+                <Badge variant={item.cost < 0 ? "default" : "outline"} className={item.cost < 0 ? "bg-primary text-primary-foreground shrink-0" : "shrink-0"}>
                   {item.cost === 0 ? 'Free' : (item.cost < 0 ? `+${Math.abs(item.cost)} CP` : `-${item.cost} CP`)}
                 </Badge>
               )}
             </CardHeader>
             <CardContent className="py-3 pt-0 text-sm text-muted-foreground">
               <ReactMarkdown 
+                remarkPlugins={[remarkGfm]}
                 components={{
+                  del: ({node, ...props}) => <del className="line-through text-muted-foreground/70" {...props} />,
                   p: ({node, ...props}) => <p className="mb-4 last:mb-0" {...props} />,
                   ul: ({node, ...props}) => <ul className="list-disc pl-5 mt-2 space-y-1" {...props} />,
                   ol: ({node, ...props}) => <ol className="list-decimal pl-5 mt-2 space-y-1" {...props} />,

@@ -21,6 +21,7 @@ class TraitBase(BaseModel):
     description: str
     cost: int
     subtitle: Optional[str] = None
+    is_modifier: bool = False
 
 class TraitCreate(TraitBase):
     id: int
@@ -44,6 +45,7 @@ class CategoryBase(BaseModel):
     name: str
     has_cost: bool = True
     summary: Optional[str] = None
+    max_allowed: int = 1
 
 class CategoryCreate(CategoryBase):
     traits: List[TraitCreate] = []

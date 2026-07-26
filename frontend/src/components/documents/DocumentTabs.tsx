@@ -2,6 +2,7 @@ import { Document } from '../../types/document';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { TraitList } from './TraitList';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 export function DocumentTabs({ document }: { document: Document }) {
   if (!document.categories || document.categories.length === 0) {
@@ -26,13 +27,16 @@ export function DocumentTabs({ document }: { document: Document }) {
           {cat.summary && (
             <div className="text-sm text-muted-foreground mt-2 mb-4 max-h-40 overflow-y-auto pr-3">
               <ReactMarkdown 
+                remarkPlugins={[remarkGfm]}
                 components={{
+                  del: ({node, ...props}) => <del className="line-through text-muted-foreground/70" {...props} />,
+                  p: ({node, ...props}) => <p className="mb-4 last:mb-0" {...props} />,
                   ul: ({node, ...props}) => <ul className="list-disc pl-5 mt-2 space-y-1" {...props} />,
                   ol: ({node, ...props}) => <ol className="list-decimal pl-5 mt-2 space-y-1" {...props} />,
                   strong: ({node, ...props}) => <strong className="font-semibold text-foreground" {...props} />,
                   a: ({node, ...props}) => <a className="text-primary underline underline-offset-4" {...props} />
                 }}
-              >
+        >
                 {cat.summary}
               </ReactMarkdown>
             </div>

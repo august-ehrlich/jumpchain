@@ -17,10 +17,10 @@ interface CreateDialogProps {
 
 // Pre-load the 4 classic jumpchain categories to save the user time
 const defaultCategories: TraitCategory[] = [
-  { id: -1, name: 'Origins', has_cost: true, traits: [] },
-  { id: -2, name: 'Perks', has_cost: true, traits: [] },
-  { id: -3, name: 'Items', has_cost: true, traits: [] },
-  { id: -4, name: 'Drawbacks', has_cost: false, traits: [] },
+  { id: -1, name: 'Origins', has_cost: true, max_allowed: 1, traits: [] },
+  { id: -2, name: 'Perks', has_cost: true, max_allowed: -1, traits: [] },
+  { id: -3, name: 'Items', has_cost: true, max_allowed: -1, traits: [] },
+  { id: -4, name: 'Drawbacks', has_cost: false, max_allowed: 2, traits: [] },
 ];
 
 export function CreateDocumentDialog({ isOpen, onOpenChange, onSuccess }: CreateDialogProps) {

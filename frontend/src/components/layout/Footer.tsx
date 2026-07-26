@@ -17,7 +17,7 @@ export default function Footer() {
         
         {/* Mock Links */}
         <div className="flex gap-5 text-sm font-medium text-muted-foreground">
-          <a href="#" className="hover:text-primary transition-colors">GitHub</a>
+          <a href="https://github.com/august-ehrlich/jumpchain" className="hover:text-primary transition-colors">GitHub</a>
           <a href="#" className="hover:text-primary transition-colors">Discord</a>
           <a href="#" className="hover:text-primary transition-colors">About</a>
         </div>

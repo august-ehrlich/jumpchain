@@ -8,6 +8,7 @@ export interface Trait {
   name: string;
   subtitle?: string;
   description: string;
+  is_modifier: boolean;
   cost: number;
   discounts_received: Discount[];
 }
@@ -17,6 +18,7 @@ export interface TraitCategory {
   name: string;
   summary?: string;
   has_cost: boolean;
+  max_allowed: number;
   traits: Trait[];
 }
 

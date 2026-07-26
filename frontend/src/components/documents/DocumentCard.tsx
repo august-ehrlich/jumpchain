@@ -5,6 +5,7 @@ import { Button, buttonVariants } from '../ui/button';
 import { Edit, Trash2 } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "../ui/alert-dialog";
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface DocumentCardProps {
   doc: Document;
@@ -70,14 +71,16 @@ export function DocumentCard({ doc, onClick, onEdit, onDelete }: DocumentCardPro
         <CardDescription className="font-medium">{doc.choice_points} CP</CardDescription>
       </CardHeader>
       <CardContent className="py-3 pt-0 text-sm text-muted-foreground line-clamp-5 overflow-hidden [&>*]:inline [&>p]:inline">
-        <ReactMarkdown
-          components={{
-            p: ({node, ...props}) => <p className="mb-4 last:mb-0" {...props} />,
-            ul: ({node, ...props}) => <ul className="list-disc pl-5 mt-2 space-y-1" {...props} />,
-            ol: ({node, ...props}) => <ol className="list-decimal pl-5 mt-2 space-y-1" {...props} />,
-            strong: ({node, ...props}) => <strong className="font-semibold text-foreground" {...props} />,
-            a: ({node, ...props}) => <a className="text-primary underline underline-offset-4" {...props} />
-          }}
+        <ReactMarkdown 
+                remarkPlugins={[remarkGfm]}
+                components={{
+                  del: ({node, ...props}) => <del className="line-through text-muted-foreground/70" {...props} />,
+                  p: ({node, ...props}) => <p className="mb-4 last:mb-0" {...props} />,
+                  ul: ({node, ...props}) => <ul className="list-disc pl-5 mt-2 space-y-1" {...props} />,
+                  ol: ({node, ...props}) => <ol className="list-decimal pl-5 mt-2 space-y-1" {...props} />,
+                  strong: ({node, ...props}) => <strong className="font-semibold text-foreground" {...props} />,
+                  a: ({node, ...props}) => <a className="text-primary underline underline-offset-4" {...props} />
+                }}
         >
           {doc.summary}
         </ReactMarkdown>

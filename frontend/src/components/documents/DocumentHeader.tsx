@@ -1,6 +1,7 @@
 import { Document } from '../../types/document';
 import { DialogTitle } from '../ui/dialog';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 
 interface HeaderProps {
@@ -21,14 +22,16 @@ export function DocumentHeader({ document }: HeaderProps) {
         <p className="text-sm font-semibold text-muted-foreground">{document.choice_points} Starting CP</p>
         <div className="max-h-64 overflow-y-auto pr-3">
           <ReactMarkdown 
-            components={{
-              p: ({node, ...props}) => <p className="mb-4 last:mb-0" {...props} />,
-              ul: ({node, ...props}) => <ul className="list-disc pl-5 mt-2 space-y-1" {...props} />,
-              ol: ({node, ...props}) => <ol className="list-decimal pl-5 mt-2 space-y-1" {...props} />,
-              strong: ({node, ...props}) => <strong className="font-semibold text-foreground" {...props} />,
-              a: ({node, ...props}) => <a className="text-primary underline underline-offset-4" {...props} />
-            }}
-          >
+                remarkPlugins={[remarkGfm]}
+                components={{
+                  del: ({node, ...props}) => <del className="line-through text-muted-foreground/70" {...props} />,
+                  p: ({node, ...props}) => <p className="mb-4 last:mb-0" {...props} />,
+                  ul: ({node, ...props}) => <ul className="list-disc pl-5 mt-2 space-y-1" {...props} />,
+                  ol: ({node, ...props}) => <ol className="list-decimal pl-5 mt-2 space-y-1" {...props} />,
+                  strong: ({node, ...props}) => <strong className="font-semibold text-foreground" {...props} />,
+                  a: ({node, ...props}) => <a className="text-primary underline underline-offset-4" {...props} />
+                }}
+        >
             {document.summary}
           </ReactMarkdown>
         </div>

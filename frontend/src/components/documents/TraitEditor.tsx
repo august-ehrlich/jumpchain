@@ -105,7 +105,7 @@ function DiscountPicker({
 export function TraitEditor({ items = [], onChange, traitName, hasCost, allCategories }: TraitEditorProps) {
   const handleAdd = () => {
     const newId = -(Date.now() + Math.floor(Math.random() * 10000));
-    onChange([...items, { id: newId, name: '', description: '', cost: 0, discounts_received: [] }]);
+    onChange([...items, { id: newId, name: '', description: '', cost: 0, is_modifier: false, discounts_received: [] }]);
   };
 
   const updateItem = (index: number, field: keyof Trait, value: any) => {
@@ -143,6 +143,15 @@ export function TraitEditor({ items = [], onChange, traitName, hasCost, allCateg
               {hasCost && (
                 <Input type="number" placeholder="Cost" value={item.cost} onChange={(e) => updateItem(idx, 'cost', parseInt(e.target.value) || 0)} className="w-24" />
               )}
+              <label className="flex items-center gap-2 text-sm cursor-pointer whitespace-nowrap">
+              <input 
+                type="checkbox" 
+                checked={item.is_modifier} 
+                onChange={(e) => updateItem(idx, 'is_modifier', e.target.checked)} 
+                className="w-4 h-4 accent-primary"
+              />
+              Modifier Trait?
+            </label>
             </div>
             
             <Textarea placeholder="Description" value={item.description} rows={2} onChange={(e) => updateItem(idx, 'description', e.target.value)} />

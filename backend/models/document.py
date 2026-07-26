@@ -1,5 +1,6 @@
 from sqlalchemy import String, Integer, ForeignKey, Text, Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.sql import expression
 from core.database import Base
 
 class Document(Base):
@@ -27,6 +28,7 @@ class TraitCategory(Base):
     document: Mapped["Document"] = relationship(back_populates="categories")
     summary: Mapped[str | None] = mapped_column(Text, nullable=True)
     sort_order: Mapped[int] = mapped_column(Integer, server_default="0", default=0)
+    max_allowed: Mapped[int] = mapped_column(Integer, server_default="1", default="1")
 
     traits: Mapped[list["Trait"]] = relationship(
         back_populates="category", cascade="all, delete-orphan"
@@ -50,6 +52,7 @@ class Trait(Base):
     description: Mapped[str] = mapped_column(Text)
     cost: Mapped[int] = mapped_column(Integer, default=0)
     subtitle: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    is_modifier: Mapped[bool] = mapped_column(Boolean, server_default=expression.false(), default=False)
 
     category: Mapped["TraitCategory"] = relationship(back_populates="traits")
 

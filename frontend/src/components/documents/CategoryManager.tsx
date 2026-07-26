@@ -16,12 +16,13 @@ export function CategoryManager({ categories, onChange }: CategoryManagerProps) 
       id: -Date.now(),
       name: '',
       has_cost: true,
+      max_allowed: 1,
       traits: []
     };
     onChange([...categories, newCategory]);
   };
 
-  const updateCategory = (index: number, field: keyof TraitCategory, value: string | boolean) => {
+  const updateCategory = (index: number, field: keyof TraitCategory, value: string | boolean | number) => {
     const newCategories = [...categories];
     newCategories[index] = { ...newCategories[index], [field]: value };
     onChange(newCategories);
@@ -46,13 +47,17 @@ export function CategoryManager({ categories, onChange }: CategoryManagerProps) 
               className="flex-1"
             />
             <label className="flex items-center gap-2 text-sm cursor-pointer whitespace-nowrap">
+              Has Cost?
               <input 
                 type="checkbox" 
                 checked={cat.has_cost} 
                 onChange={(e) => updateCategory(idx, 'has_cost', e.target.checked)} 
                 className="w-4 h-4 accent-primary"
               />
-              Has Cost?
+            </label>
+            <label className="flex items-center gap-2 text-sm cursor-pointer whitespace-nowrap">
+              Max Allowed Traits:
+              <Input type="number" placeholder="Max Allowed" value={cat.max_allowed} onChange={(e) => updateCategory(idx, 'max_allowed', parseInt(e.target.value) || 0)} className="w-24" />
             </label>
             <Button type="button" variant="ghost" size="icon" className="text-destructive h-8 w-8 shrink-0" onClick={() => removeCategory(idx)}>
               <Trash2 className="h-4 w-4" />

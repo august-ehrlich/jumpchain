@@ -37,7 +37,7 @@ async def create_document(db: AsyncSession, document: DocumentCreate):
     
     # Pass 1: Create categories and traits
     for idx, cat_create in enumerate(document.categories):
-        db_category = TraitCategory(name=cat_create.name, has_cost=cat_create.has_cost, summary=cat_create.summary, sort_order=idx)
+        db_category = TraitCategory(name=cat_create.name, has_cost=cat_create.has_cost, summary=cat_create.summary, sort_order=idx, max_allowed=cat_create.max_allowed)
         
         for trait_create in cat_create.traits:
             db_trait = Trait(
@@ -45,6 +45,7 @@ async def create_document(db: AsyncSession, document: DocumentCreate):
                 description=trait_create.description,
                 cost=trait_create.cost,
                 subtitle=trait_create.subtitle,
+                is_modifier=trait_create.is_modifier,
                 discounts_received=[]
             )
             db_category.traits.append(db_trait)
@@ -105,6 +106,7 @@ def sync_traits(db_traits: list[Trait], incoming_traits: list[TraitUpdate], id_m
             existing.description = incoming.description
             existing.cost = incoming.cost
             existing.subtitle = incoming.subtitle
+            existing.is_modifier = incoming.is_modifier
             id_mapping[incoming.id] = existing
             
         elif incoming.id < 0:
@@ -113,6 +115,7 @@ def sync_traits(db_traits: list[Trait], incoming_traits: list[TraitUpdate], id_m
                 description=incoming.description,
                 cost=incoming.cost,
                 subtitle=incoming.subtitle,
+                is_modifier=incoming.is_modifier,
                 discounts_received=[]
             )
             db_traits.append(new_trait)
@@ -133,10 +136,11 @@ def sync_categories(db_categories: list[TraitCategory], incoming_categories: lis
             existing.has_cost = incoming.has_cost
             existing.summary = incoming.summary
             existing.sort_order = idx
+            existing.max_allowed = incoming.max_allowed
             sync_traits(existing.traits, incoming.traits, id_mapping)
             
         elif incoming.id < 0:
-            new_category = TraitCategory(name=incoming.name, has_cost=incoming.has_cost, summary=incoming.summary, sort_order=idx)
+            new_category = TraitCategory(name=incoming.name, has_cost=incoming.has_cost, summary=incoming.summary, sort_order=idx, max_allowed=incoming.max_allowed)
             db_categories.append(new_category)
             sync_traits(new_category.traits, incoming.traits, id_mapping)
 
