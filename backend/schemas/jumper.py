@@ -1,6 +1,6 @@
 from pydantic import BaseModel, ConfigDict
-from typing import List, Optional
-
+from typing import List
+from .document import TraitResponse
 
 class JumperBase(BaseModel):
     name: str
@@ -10,23 +10,21 @@ class JumperCreate(JumperBase):
 
 class JumperResponse(JumperBase):
     id: int
+    builds: List[BuildResponse] = []
     model_config = ConfigDict(from_attributes=True)
 
-
-class BuildCreate(BaseModel):
+class BuildBase(BaseModel):
     jumper_id: int
     document_id: int
-    selected_origin_id: Optional[int] = None
-    
-    perk_ids: List[int] = []
-    item_ids: List[int] = []
-    drawback_ids: List[int] = []
 
-class BuildResponse(BaseModel):
+class BuildCreate(BuildBase):
+    trait_ids: List[int] = []
+
+class BuildResponse(BuildBase):
     id: int
-    jumper_id: int
-    document_id: int
-    selected_origin_id: Optional[int] = None
     remaining_cp: int
-
+    traits: List[TraitResponse] = []
     model_config = ConfigDict(from_attributes=True)
+
+class BuildUpdate(BaseModel):
+    trait_ids: List[int] = []

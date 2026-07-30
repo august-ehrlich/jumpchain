@@ -54,7 +54,7 @@ def copy_typescript_files():
                         content = f.read()
                         
                     # Add a header for readability when pasting
-                    output_text.append(f"### File: {file_path}\n")
+                    output_text.append(f"### File: frontend{file_path[1:]}\n")
                     output_text.append(content)
                     output_text.append("\n")
                     
