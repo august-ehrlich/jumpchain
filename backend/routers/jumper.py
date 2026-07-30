@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from core.database import get_db
 import crud
-from schemas import BuildUpdate, JumperResponse, JumperCreate, BuildCreate, BuildResponse
+from schemas.jumper import BuildUpdate, JumperResponse, JumperCreate, BuildCreate, BuildResponse
 from typing import List
 
 router = APIRouter(prefix="/jumpers", tags=["Jumpers"])

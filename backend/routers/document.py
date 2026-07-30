@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from core.database import get_db
-from schemas import Document, DocumentCreate, DocumentUpdate
+from schemas.document import Document, DocumentCreate, DocumentUpdate
 import crud
 from typing import List
 

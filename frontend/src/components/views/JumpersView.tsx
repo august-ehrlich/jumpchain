@@ -13,9 +13,9 @@ import {
 	DialogTitle,
 	DialogFooter,
 } from "../ui/dialog";
-import { CreateBuildDialog } from "../jumpers/CreateBuildDialog";
-import { JumperListPanel } from "../jumpers/JumperListPanel";
-import { JumperDetailPanel } from "../jumpers/JumperDetailPanel";
+import { CreateBuildDialog } from "../features/jumpers/builder/CreateBuildDialog";
+import { JumperListPanel } from "../features/jumpers/dashboard/JumperListPanel";
+import { JumperDetailPanel } from "../features/jumpers/dashboard/JumperDetailPanel";
 
 export default function JumpersView() {
 	const [jumpers, setJumpers] = useState<Jumper[]>([]);

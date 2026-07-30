@@ -1,21 +1,10 @@
 from pydantic import BaseModel, ConfigDict
 from typing import List, Optional
 
-# ==========================================
-# DISCOUNT SCHEMAS (Must be defined first!)
-# ==========================================
-class DiscountUpdate(BaseModel):
+class DiscountInput(BaseModel):
     source_trait_id: int
     discount: int
 
-class DiscountResponse(BaseModel):
-    source_trait_id: int
-    discount: int
-    model_config = ConfigDict(from_attributes=True)
-
-# ==========================================
-# TRAIT SCHEMAS
-# ==========================================
 class TraitBase(BaseModel):
     name: str
     description: str
@@ -23,14 +12,46 @@ class TraitBase(BaseModel):
     subtitle: Optional[str] = None
     is_modifier: bool = False
 
-class TraitCreate(TraitBase):
-    id: int
-    discounts_received: List[DiscountUpdate] = []
+class TraitInput(TraitBase):
+    id: int  # Accepts actual DB IDs or temporary negative frontend IDs
+    discounts_received: List[DiscountInput] = []
 
-# Inherit from TraitBase so it gets name, description, cost, and subtitle automatically
-class TraitUpdate(TraitBase):
-    id: int
-    discounts_received: List[DiscountUpdate] = []
+class CategoryBase(BaseModel):
+    name: str
+    has_cost: bool = True
+    summary: Optional[str] = None
+    max_allowed: int = 1
+
+class CategoryInput(CategoryBase):
+    id: int  # Accepts actual DB IDs or temporary negative frontend IDs
+    traits: List[TraitInput] = []
+
+# ==========================================
+# ROOT DOCUMENT SCHEMAS
+# ==========================================
+class DocumentBase(BaseModel):
+    title: str
+    choice_points: int
+    summary: str
+
+# Create requires all base fields
+class DocumentCreate(DocumentBase):
+    categories: List[CategoryInput] = []
+
+# Update makes root fields optional, but expects the full category tree if provided
+class DocumentUpdate(BaseModel):
+    title: Optional[str] = None
+    choice_points: Optional[int] = None
+    summary: Optional[str] = None
+    categories: Optional[List[CategoryInput]] = None
+
+# ==========================================
+# RESPONSE SCHEMAS
+# ==========================================
+class DiscountResponse(BaseModel):
+    source_trait_id: int
+    discount: int
+    model_config = ConfigDict(from_attributes=True)
 
 class TraitResponse(TraitBase):
     id: int
@@ -38,45 +59,11 @@ class TraitResponse(TraitBase):
     discounts_received: List[DiscountResponse] = []
     model_config = ConfigDict(from_attributes=True)
 
-# ==========================================
-# CATEGORY SCHEMAS
-# ==========================================
-class CategoryBase(BaseModel):
-    name: str
-    has_cost: bool = True
-    summary: Optional[str] = None
-    max_allowed: int = 1
-
-class CategoryCreate(CategoryBase):
-    traits: List[TraitCreate] = []
-
-# Inherit from CategoryBase so it gets name, has_cost, and summary automatically
-class CategoryUpdate(CategoryBase):
-    id: int
-    traits: List[TraitUpdate]
-
 class CategoryResponse(CategoryBase):
     id: int
     document_id: int
     traits: List[TraitResponse] = []
     model_config = ConfigDict(from_attributes=True)
-
-# ==========================================
-# DOCUMENT SCHEMAS
-# ==========================================
-class DocumentBase(BaseModel):
-    title: str
-    choice_points: int
-    summary: str
-
-class DocumentCreate(DocumentBase):
-    categories: List[CategoryCreate] = []
-
-class DocumentUpdate(BaseModel):
-    title: Optional[str] = None
-    choice_points: Optional[int] = None
-    summary: Optional[str] = None
-    categories: Optional[List[CategoryUpdate]] = None
 
 class Document(DocumentBase):
     id: int
