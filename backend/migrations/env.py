@@ -8,7 +8,11 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 from alembic import context
 
 from core.database import Base, SQLALCHEMY_DATABASE_URL
-import models  # pyright: ignore[reportUnusedImport]
+
+import models.document # pyright: ignore[reportUnusedImport]
+import models.jumper # pyright: ignore[reportUnusedImport]
+
+target_metadata = Base.metadata
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

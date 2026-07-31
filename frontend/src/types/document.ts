@@ -19,6 +19,9 @@ export interface TraitCategory {
 	summary?: string;
 	has_cost: boolean;
 	max_allowed: number;
+	is_random?: boolean;
+	bypass_trait_id?: number | null;
+	free_pick_trait_id?: number | null;
 	traits: Trait[];
 }
 

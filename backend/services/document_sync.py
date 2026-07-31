@@ -2,8 +2,20 @@
 from models.document import  TraitCategory, Trait, TraitDiscount
 from schemas.document import CategoryInput, TraitInput
 
-def sync_discounts(incoming_categories: list[CategoryInput], id_mapping: dict[int, Trait]) -> None:
-    """Pass 2: Re-link discounts using the ID mapping generated in Pass 1"""
+def sync_pass_two(db_categories: list[TraitCategory], incoming_categories: list[CategoryInput], id_mapping: dict[int, Trait]) -> None:
+    """Pass 2: Re-link foreign keys using the ID mapping generated in Pass 1"""
+    
+    for db_cat in db_categories:
+        if db_cat.bypass_trait_id is not None and db_cat.bypass_trait_id < 0:
+            mapped_trait = id_mapping.get(db_cat.bypass_trait_id)
+            if mapped_trait:
+                db_cat.bypass_trait_id = mapped_trait.id
+
+        if db_cat.free_pick_trait_id is not None and db_cat.free_pick_trait_id < 0:
+            mapped_trait = id_mapping.get(db_cat.free_pick_trait_id)
+            if mapped_trait:
+                db_cat.free_pick_trait_id = mapped_trait.id
+
     for cat_in in incoming_categories:
         for trait_in in cat_in.traits:
             db_trait = id_mapping.get(trait_in.id)
@@ -59,8 +71,6 @@ def sync_categories(
 ) -> None:
     
     existing_map = {cat.id: cat for cat in db_categories}
-    
-    # Safely extract IDs, ignoring items that somehow have no ID
     incoming_map = {}
     for cat in incoming_categories:
         cat_id = getattr(cat, "id", -1)
@@ -72,7 +82,7 @@ def sync_categories(
         db_categories.remove(cat)
         
     for idx, incoming in enumerate(incoming_categories):
-        incoming_id = getattr(incoming, "id", -idx - 1) # Fallback to negative index
+        incoming_id = getattr(incoming, "id", -idx - 1) 
         
         if incoming_id > 0 and incoming_id in existing_map:
             existing = existing_map[incoming_id]
@@ -81,6 +91,9 @@ def sync_categories(
             existing.summary = incoming.summary
             existing.sort_order = idx
             existing.max_allowed = incoming.max_allowed
+            existing.is_random = incoming.is_random
+            existing.bypass_trait_id = incoming.bypass_trait_id
+            existing.free_pick_trait_id = incoming.free_pick_trait_id
             sync_traits(existing.traits, incoming.traits, id_mapping)
             
         elif incoming_id < 0:
@@ -89,7 +102,10 @@ def sync_categories(
                 has_cost=incoming.has_cost, 
                 summary=incoming.summary, 
                 sort_order=idx, 
-                max_allowed=incoming.max_allowed
+                max_allowed=incoming.max_allowed,
+                is_random=incoming.is_random,
+                bypass_trait_id=incoming.bypass_trait_id,
+                free_pick_trait_id=incoming.free_pick_trait_id
             )
             db_categories.append(new_category)
             sync_traits(new_category.traits, incoming.traits, id_mapping)

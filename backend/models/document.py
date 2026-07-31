@@ -29,6 +29,9 @@ class TraitCategory(Base):
     summary: Mapped[str | None] = mapped_column(Text, nullable=True)
     sort_order: Mapped[int] = mapped_column(Integer, server_default="0", default=0)
     max_allowed: Mapped[int] = mapped_column(Integer, server_default="1", default="1")
+    is_random: Mapped[bool] = mapped_column(Boolean, server_default=expression.false(), default=False)
+    bypass_trait_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    free_pick_trait_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
     traits: Mapped[list["Trait"]] = relationship(
         back_populates="category", cascade="all, delete-orphan"

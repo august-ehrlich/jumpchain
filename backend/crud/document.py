@@ -3,7 +3,7 @@ from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 from models.document import Document, TraitCategory, Trait
 from schemas.document import DocumentCreate, DocumentUpdate
-from services.document_sync import sync_categories, sync_discounts
+from services.document_sync import sync_categories, sync_pass_two
 
 
 async def get_document(db: AsyncSession, document_id: int):
@@ -43,8 +43,7 @@ async def create_document(db: AsyncSession, document: DocumentCreate) -> Documen
     db.add(db_document)
     await db.flush()  # Flushes to DB to generate the real primary keys
     
-    # 3. Pass 2: Re-link discounts using the generated mapping
-    sync_discounts(document.categories, id_mapping)
+    sync_pass_two(db_document.categories, document.categories, id_mapping)
     
     await db.commit()
     
@@ -91,7 +90,7 @@ async def update_document(db: AsyncSession, document_id: int, document_update: D
         sync_categories(db_document.categories, document_update.categories, id_mapping)
         await db.flush()
 
-        sync_discounts(document_update.categories, id_mapping)
+        sync_pass_two(db_document.categories, document_update.categories, id_mapping)
 
     await db.commit()
 

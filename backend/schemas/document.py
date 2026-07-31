@@ -21,6 +21,9 @@ class CategoryBase(BaseModel):
     has_cost: bool = True
     summary: Optional[str] = None
     max_allowed: int = 1
+    is_random: bool = False
+    bypass_trait_id: Optional[int] = None
+    free_pick_trait_id: Optional[int] = None
 
 class CategoryInput(CategoryBase):
     id: int  # Accepts actual DB IDs or temporary negative frontend IDs

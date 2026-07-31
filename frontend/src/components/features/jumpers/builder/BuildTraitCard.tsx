@@ -1,7 +1,7 @@
 import type { Trait, TraitCategory } from "../../../../types/document";
 import { Card, CardHeader, CardTitle, CardContent } from "../../../ui/card";
 import { Badge } from "../../../ui/badge";
-import { Check } from "lucide-react";
+import { Check, Lock } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
@@ -10,6 +10,7 @@ interface BuildTraitCardProps {
 	category: TraitCategory;
 	isSelected: boolean;
 	selectedIds: Set<number>;
+	isLocked?: boolean; 
 	getTraitName: (id: number) => string;
 	onToggle: () => void;
 }
@@ -19,6 +20,7 @@ export function BuildTraitCard({
 	category,
 	isSelected,
 	selectedIds,
+	isLocked = false,
 	getTraitName,
 	onToggle,
 }: BuildTraitCardProps) {
@@ -37,8 +39,14 @@ export function BuildTraitCard({
 
 	return (
 		<Card
-			className={`cursor-pointer transition-all ${isSelected ? "ring-2 ring-primary border-primary shadow-md bg-primary/5" : "hover:border-primary/50"}`}
-			onClick={onToggle}
+			className={`transition-all relative overflow-hidden ${
+				isSelected ? "ring-2 ring-primary border-primary shadow-md bg-primary/5" : ""
+			} ${
+				isLocked && !isSelected ? "opacity-60 grayscale-[50%] cursor-not-allowed" : ""
+			} ${
+				!isLocked ? "cursor-pointer hover:border-primary/50" : "cursor-default"
+			}`}
+			onClick={() => !isLocked && onToggle()}
 		>
 			<CardHeader className="py-3 flex flex-row items-start justify-between space-y-0 relative">
 				<div className="pr-12">
@@ -80,8 +88,9 @@ export function BuildTraitCard({
 
 					<div className="w-5 h-5 flex items-center justify-center">
 						{isSelected && (
-							<Check size={20} className="stroke-[3px] text-primary" />
+							isLocked ? <Lock size={18} className="text-primary" /> : <Check size={20} className="stroke-[3px] text-primary" />
 						)}
+						{isLocked && !isSelected && <Lock size={16} className="text-muted-foreground/50" />}
 					</div>
 				</div>
 			</CardHeader>
