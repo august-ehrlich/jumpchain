@@ -11,6 +11,7 @@ import {
 } from "../../../ui/dialog";
 import { Button } from "../../../ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../../ui/tabs";
+import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "../../../ui/select"
 import { Input } from "../../../ui/input";
 import { Textarea } from "../../../ui/textarea";
 import { Label } from "../../../ui/label";
@@ -126,7 +127,83 @@ export function EditDocumentDialog({
 										}
 									/>
 								</div>
-
+								<div className="space-y-1.5 pt-2">
+													<Label>Gender / Alt-Form Bypass Trait (Optional)</Label>
+													<Select
+														value={formData.gender_bypass_trait_id?.toString() || "none"}
+														onValueChange={(val) => setFormData({ ...formData, gender_bypass_trait_id: val === "none" || val === null ? null : parseInt(val, 10) })}
+													>
+														<SelectTrigger className="w-full">
+															<SelectValue placeholder="Select a trait to allow changing gender...">
+																{formData.gender_bypass_trait_id 
+																	? formData.categories.flatMap((c) => c.traits).find((t) => t.id === formData.gender_bypass_trait_id)?.name || "Unnamed" 
+																	: "None"}
+															</SelectValue>
+														</SelectTrigger>
+														<SelectContent>
+															<SelectItem value="none">None</SelectItem>
+															{formData.categories.flatMap((c) => c.traits).map((t) => (
+																<SelectItem key={t.id} value={t.id.toString()}>{t.name || "Unnamed"}</SelectItem>
+															))}
+														</SelectContent>
+													</Select>
+												</div>
+									<div className="space-y-4 border p-4 rounded-lg bg-muted/10">
+										<label className="flex items-center gap-2 font-medium cursor-pointer">
+											<input
+												type="checkbox"
+												checked={formData.has_random_age}
+												onChange={(e) => setFormData({ ...formData, has_random_age: e.target.checked })}
+												className="accent-primary w-4 h-4"
+											/>
+											Enforce Random Age Roll?
+										</label>
+										
+										{formData.has_random_age && (
+											<div className="pl-6 space-y-4 border-l-2 border-primary/20">
+												<div className="flex gap-4">
+													<div className="space-y-1.5 flex-1">
+														<Label>Min Age</Label>
+														<Input
+															type="number"
+															value={formData.age_roll_min}
+															onChange={(e) => setFormData({ ...formData, age_roll_min: parseInt(e.target.value, 10) || 0 })}
+														/>
+													</div>
+													<div className="space-y-1.5 flex-1">
+														<Label>Max Age</Label>
+														<Input
+															type="number"
+															value={formData.age_roll_max}
+															onChange={(e) => setFormData({ ...formData, age_roll_max: parseInt(e.target.value, 10) || 0 })}
+														/>
+													</div>
+												</div>
+												
+												<div className="space-y-1.5">
+													<Label>Age Bypass Trait (Optional)</Label>
+													<Select
+														value={formData.age_bypass_trait_id?.toString() || "none"}
+														onValueChange={(val) => setFormData({ ...formData, age_bypass_trait_id: val === "none" || val === null ? null : parseInt(val, 10) })}
+													>
+														<SelectTrigger className="w-full">
+															<SelectValue placeholder="Select a trait to bypass the random age roll...">
+																{formData.age_bypass_trait_id 
+																	? formData.categories.flatMap((c) => c.traits).find((t) => t.id === formData.age_bypass_trait_id)?.name || "Unnamed" 
+																	: "None"}
+															</SelectValue>
+														</SelectTrigger>
+														<SelectContent>
+															<SelectItem value="none">None</SelectItem>
+															{formData.categories.flatMap((c) => c.traits).map((t) => (
+																<SelectItem key={t.id} value={t.id.toString()}>{t.name || "Unnamed"}</SelectItem>
+															))}
+														</SelectContent>
+													</Select>
+												</div>
+											</div>
+										)}
+									</div>
 								<CategoryManager
 									categories={formData.categories}
 									onChange={(newCategories) =>

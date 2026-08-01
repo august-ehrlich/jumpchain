@@ -33,6 +33,9 @@ export default function JumpersView() {
 		undefined,
 	);
 
+	const [newJumperAge, setNewJumperAge] = useState("18");
+	const [newJumperGender, setNewJumperGender] = useState("Male");
+
 	useEffect(() => {
 		Promise.all([jumperApi.getAll(), documentApi.getAll()]).then(([j, d]) => {
 			setJumpers(j);
@@ -42,11 +45,14 @@ export default function JumpersView() {
 	}, []);
 
 	const handleCreateJumper = async () => {
-		if (!newJumperName) return;
-		const created = await jumperApi.create(newJumperName);
+		if (!newJumperName || !newJumperAge || !newJumperGender) return;
+		const parsedAge = parseInt(newJumperAge, 10);
+		const created = await jumperApi.create(newJumperName, parsedAge, newJumperGender);
 		setJumpers([...jumpers, created]);
 		setNewJumperName("");
+		setNewJumperAge("18");
 		setIsCreatingJumper(false);
+		setNewJumperGender("Male");
 	};
 
 	const handleDeleteJumper = async (id: number) => {
@@ -121,20 +127,28 @@ export default function JumpersView() {
 			<Dialog open={isCreatingJumper} onOpenChange={setIsCreatingJumper}>
 				<DialogContent>
 					<DialogHeader>
-						<DialogTitle>Name Your Jumper</DialogTitle>
+						<DialogTitle>Create New Jumper</DialogTitle>
 					</DialogHeader>
-					<Input
-						placeholder="Jumper Name"
-						value={newJumperName}
-						onChange={(e) => setNewJumperName(e.target.value)}
-					/>
+					<div className="space-y-4 py-2">
+						<Input
+							placeholder="Jumper Name"
+							value={newJumperName}
+							onChange={(e) => setNewJumperName(e.target.value)}
+						/>
+						<Input
+							type="number"
+							placeholder="Starting Age (Required)"
+							value={newJumperAge}
+							onChange={(e) => setNewJumperAge(e.target.value)}
+						/>
+						<Input
+							placeholder="Gender (Male, Female, etc.)"
+							value={newJumperGender}
+							onChange={(e) => setNewJumperGender(e.target.value)}
+						/>
+					</div>
 					<DialogFooter>
-						<Button
-							variant="outline"
-							onClick={() => setIsCreatingJumper(false)}
-						>
-							Cancel
-						</Button>
+						<Button variant="outline" onClick={() => setIsCreatingJumper(false)}>Cancel</Button>
 						<Button onClick={handleCreateJumper}>Create</Button>
 					</DialogFooter>
 				</DialogContent>
@@ -142,7 +156,7 @@ export default function JumpersView() {
 
 			{buildTargetDoc && selectedJumper && (
 				<CreateBuildDialog
-					jumperId={selectedJumper.id}
+					jumper={selectedJumper} // Changed from jumperId={selectedJumper.id}
 					document={buildTargetDoc}
 					buildToEdit={editingBuild}
 					onOpenChange={(isOpen) => {

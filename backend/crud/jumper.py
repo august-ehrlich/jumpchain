@@ -37,17 +37,27 @@ async def create_jumper(db: AsyncSession, jumper: JumperCreate):
 
 async def create_build(db: AsyncSession, build: BuildCreate) -> Build:
     doc = await get_document(db, build.document_id)
-    
     if not doc:
         raise HTTPException(status_code=404, detail="Document not found")
         
+    jumper = await get_jumper(db, build.jumper_id)
+    if not jumper:
+        raise HTTPException(status_code=404, detail="Jumper not found")
+        
     selected_traits, remaining_cp = validate_and_calculate_build(doc, build.trait_ids)
+    
+    # Fallback to jumper's baseline age
+    final_age = build.age if build.age is not None else jumper.age
+    final_gender = build.gender if build.gender is not None else jumper.gender
     
     db_build = Build(
         jumper_id=build.jumper_id, 
         document_id=build.document_id, 
-        remaining_cp=remaining_cp
+        remaining_cp=remaining_cp,
+        age=final_age,
+        gender=final_gender
     )
+
     db_build.traits.extend(selected_traits)
     
     db.add(db_build)
@@ -87,14 +97,21 @@ async def update_build(db: AsyncSession, jumper_id: int, build_id: int, build_up
         raise HTTPException(status_code=404, detail="Build not found")
         
     doc = await get_document(db, db_build.document_id)
-
     if not doc:
-            raise HTTPException(status_code=404, detail="Document not found")
+        raise HTTPException(status_code=404, detail="Document not found")
+            
+    jumper = await get_jumper(db, jumper_id)
+    if not jumper:
+        raise HTTPException(status_code=404, detail="Jumper not found")
 
     selected_traits, remaining_cp = validate_and_calculate_build(doc, build_update.trait_ids)
     
     db_build.traits.clear()
     db_build.traits.extend(selected_traits)
     db_build.remaining_cp = remaining_cp
+    
+    # Apply new age or fallback to baseline
+    db_build.age = build_update.age if build_update.age is not None else jumper.age
+    db_build.gender = build_update.gender if build_update.gender is not None else jumper.gender
     
     await db.commit()

@@ -36,6 +36,11 @@ class DocumentBase(BaseModel):
     title: str
     choice_points: int
     summary: str
+    has_random_age: bool = False
+    age_roll_min: int = 14
+    age_roll_max: int = 25
+    age_bypass_trait_id: Optional[int] = None
+    gender_bypass_trait_id: Optional[int] = None
 
 # Create requires all base fields
 class DocumentCreate(DocumentBase):
@@ -47,6 +52,11 @@ class DocumentUpdate(BaseModel):
     choice_points: Optional[int] = None
     summary: Optional[str] = None
     categories: Optional[List[CategoryInput]] = None
+    has_random_age: Optional[bool] = None
+    age_roll_min: Optional[int] = None
+    age_roll_max: Optional[int] = None
+    age_bypass_trait_id: Optional[int] = None
+    gender_bypass_trait_id: Optional[int] = None
 
 # ==========================================
 # RESPONSE SCHEMAS

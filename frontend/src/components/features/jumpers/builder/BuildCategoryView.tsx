@@ -20,11 +20,13 @@ export function BuildCategoryView({
 	document,
 	selectedIds,
 	stats,
+	hasRolledAge,
 	onToggle,
 }: {
 	document: Document;
 	selectedIds: Set<number>;
 	stats: BuildStats;
+	hasRolledAge: boolean;
 	onToggle: (id: number, cat: TraitCategory, isMod: boolean) => void;
 }) {
 	const [rollingCategory, setRollingCategory] = useState<number | null>(null);
@@ -170,8 +172,16 @@ export function BuildCategoryView({
 										if (trait.id === bypassTraitId && (hasWonWildcard || hasRolled)) {
 											return null;
 										}
+										
+										if (hasRolledAge && trait.id === document.age_bypass_trait_id) {
+											return null;
+										}
 
-										const isLocked = isRandom && !isBypassed && !hasWonWildcard && !trait.is_modifier;
+										const isLockedNonModifier = isRandom && !isBypassed && !hasWonWildcard && !trait.is_modifier;
+										
+										const isBypassLocked = hasRolled && trait.id === bypassTraitId;
+										
+										const isLocked = isLockedNonModifier || isBypassLocked;
 
 										return (
 											<BuildTraitCard

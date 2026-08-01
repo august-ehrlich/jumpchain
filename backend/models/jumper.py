@@ -15,7 +15,9 @@ class Jumper(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     name: Mapped[str] = mapped_column(String(255))
-    
+    age: Mapped[int] = mapped_column(Integer, nullable=False, server_default="18")
+    gender: Mapped[str] = mapped_column(String(50), nullable=False, server_default="Unknown")
+
     builds: Mapped[list["Build"]] = relationship(back_populates="jumper", cascade="all, delete-orphan")
 
 class Build(Base):
@@ -25,6 +27,8 @@ class Build(Base):
     jumper_id: Mapped[int] = mapped_column(ForeignKey("jumpers.id", ondelete="CASCADE"))
     document_id: Mapped[int] = mapped_column(ForeignKey("documents.id", ondelete="CASCADE"))
     remaining_cp: Mapped[int] = mapped_column(Integer, default=0)
+    age: Mapped[int] = mapped_column(Integer, nullable=False, server_default="18")
+    gender: Mapped[str] = mapped_column(String(50), nullable=False, server_default="Unknown")
 
     jumper: Mapped["Jumper"] = relationship(back_populates="builds")
     document: Mapped["Document"] = relationship()

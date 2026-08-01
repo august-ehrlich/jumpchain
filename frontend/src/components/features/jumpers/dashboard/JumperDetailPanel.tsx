@@ -49,7 +49,12 @@ export function JumperDetailPanel({
 			<div className="space-y-6">
 				<div className="flex justify-between items-start">
 					<div>
-						<h1 className="text-3xl font-bold">{jumper.name}</h1>
+						<h1 className="text-3xl font-bold flex items-center gap-3">
+							{jumper.name} 
+							<span className="text-lg text-muted-foreground font-normal">
+								(Age: {jumper.age} • {jumper.gender})
+							</span>
+						</h1>
 						<p className="text-muted-foreground mt-1">
 							Total Jumps Completed: {jumper.builds?.length || 0}
 						</p>
@@ -139,7 +144,7 @@ export function JumperDetailPanel({
 								<CardHeader className="pr-20">
 									<CardTitle>{doc?.title || "Unknown Jump"}</CardTitle>
 									<CardDescription>
-										Finished with {build.remaining_cp} CP
+										Finished with {build.remaining_cp} CP • In-Jump: Age {build.age} ({build.gender})
 									</CardDescription>
 								</CardHeader>
 							</Card>

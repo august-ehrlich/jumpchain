@@ -30,5 +30,10 @@ export interface Document {
 	title: string;
 	choice_points: number;
 	summary: string;
+	has_random_age: boolean;
+	age_roll_min: number;
+	age_roll_max: number;
+	age_bypass_trait_id?: number | null;
+	gender_bypass_trait_id?: number | null;
 	categories: TraitCategory[];
 }

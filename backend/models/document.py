@@ -12,6 +12,12 @@ class Document(Base):
     choice_points: Mapped[int] = mapped_column(Integer, nullable=False)
     summary: Mapped[str] = mapped_column(Text)
 
+    has_random_age: Mapped[bool] = mapped_column(Boolean, server_default=expression.false(), default=False)
+    age_roll_min: Mapped[int] = mapped_column(Integer, server_default="14", default=14)
+    age_roll_max: Mapped[int] = mapped_column(Integer, server_default="25", default=25)
+    age_bypass_trait_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    gender_bypass_trait_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
+
     # A document now has many custom categories
     categories: Mapped[list["TraitCategory"]] = relationship(
         back_populates="document", cascade="all, delete-orphan", order_by="TraitCategory.sort_order"

@@ -1,5 +1,5 @@
 from pydantic import BaseModel, ConfigDict
-from typing import List
+from typing import List, Optional
 from .document import TraitResponse
 
 # ==========================================
@@ -11,14 +11,20 @@ class BuildBase(BaseModel):
 
 class BuildCreate(BuildBase):
     trait_ids: List[int] = []
+    age: Optional[int] = None
+    gender: Optional[str] = None
 
 class BuildUpdate(BaseModel):
     trait_ids: List[int] = []
+    age: Optional[int] = None
+    gender: Optional[str] = None
 
 class BuildResponse(BuildBase):
     id: int
     remaining_cp: int
     traits: List[TraitResponse] = []
+    age: int
+    gender: str
     model_config = ConfigDict(from_attributes=True)
 
 # ==========================================
@@ -26,6 +32,8 @@ class BuildResponse(BuildBase):
 # ==========================================
 class JumperBase(BaseModel):
     name: str
+    age: int
+    gender: str
 
 class JumperCreate(JumperBase):
     pass
