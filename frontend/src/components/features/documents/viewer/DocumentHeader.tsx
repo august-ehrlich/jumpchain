@@ -1,7 +1,6 @@
 import type { Document } from "../../../../types/document";
 import { DialogTitle } from "../../../ui/dialog";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
+import { MarkdownViewer } from "../../../ui/MarkdownViewer";
 
 interface HeaderProps {
 	document: Document;
@@ -22,37 +21,7 @@ export function DocumentHeader({ document }: HeaderProps) {
 					{document.choice_points} Starting CP
 				</p>
 				<div className="max-h-64 overflow-y-auto pr-3">
-					<ReactMarkdown
-						remarkPlugins={[remarkGfm]}
-						components={{
-							del: ({ node, ...props }) => (
-								<del
-									className="line-through text-muted-foreground/70"
-									{...props}
-								/>
-							),
-							p: ({ node, ...props }) => (
-								<p className="mb-4 last:mb-0" {...props} />
-							),
-							ul: ({ node, ...props }) => (
-								<ul className="list-disc pl-5 mt-2 space-y-1" {...props} />
-							),
-							ol: ({ node, ...props }) => (
-								<ol className="list-decimal pl-5 mt-2 space-y-1" {...props} />
-							),
-							strong: ({ node, ...props }) => (
-								<strong className="font-semibold text-foreground" {...props} />
-							),
-							a: ({ node, ...props }) => (
-								<a
-									className="text-primary underline underline-offset-4"
-									{...props}
-								/>
-							),
-						}}
-					>
-						{document.summary}
-					</ReactMarkdown>
+					<MarkdownViewer content={document.summary} />
 				</div>
 			</div>
 		</>

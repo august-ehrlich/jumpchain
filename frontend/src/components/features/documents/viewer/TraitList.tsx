@@ -1,8 +1,8 @@
 import type { Trait, TraitCategory } from "../../../../types/document";
 import { Card, CardHeader, CardTitle, CardContent } from "../../../ui/card";
 import { Badge } from "../../../ui/badge";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
+import { MarkdownViewer } from "../../../ui/MarkdownViewer"; // From Task 1
+import { getTraitNameById } from "../../../../utils/documentUtils"; // Import utility
 
 interface TraitListProps {
 	items: Trait[] | undefined;
@@ -19,15 +19,6 @@ export function TraitList({ items, hasCost, allCategories }: TraitListProps) {
 		);
 	}
 
-	const getTraitName = (id: number) => {
-		for (const cat of allCategories) {
-			const found = cat.traits.find((t) => t.id === id);
-			if (found) return found.name || "Unnamed Trait";
-		}
-		return "Unknown";
-	};
-
-	// Native browser API for formatting lists ("A, B, and C")
 	const listFormatter = new Intl.ListFormat("en", {
 		style: "long",
 		type: "conjunction",
@@ -36,11 +27,10 @@ export function TraitList({ items, hasCost, allCategories }: TraitListProps) {
 	return (
 		<div className="mt-4 space-y-4">
 			{items.map((item) => {
-				// Group discounts by their value before rendering
 				const discountsByValue = new Map<number, string[]>();
 
 				item.discounts_received?.forEach((disc) => {
-					const name = getTraitName(disc.source_trait_id);
+					const name = getTraitNameById(allCategories, disc.source_trait_id);
 					if (!discountsByValue.has(disc.discount)) {
 						discountsByValue.set(disc.discount, []);
 					}
@@ -96,43 +86,7 @@ export function TraitList({ items, hasCost, allCategories }: TraitListProps) {
 							)}
 						</CardHeader>
 						<CardContent className="py-3 pt-0 text-sm text-muted-foreground">
-							<ReactMarkdown
-								remarkPlugins={[remarkGfm]}
-								components={{
-									del: ({ node, ...props }) => (
-										<del
-											className="line-through text-muted-foreground/70"
-											{...props}
-										/>
-									),
-									p: ({ node, ...props }) => (
-										<p className="mb-4 last:mb-0" {...props} />
-									),
-									ul: ({ node, ...props }) => (
-										<ul className="list-disc pl-5 mt-2 space-y-1" {...props} />
-									),
-									ol: ({ node, ...props }) => (
-										<ol
-											className="list-decimal pl-5 mt-2 space-y-1"
-											{...props}
-										/>
-									),
-									strong: ({ node, ...props }) => (
-										<strong
-											className="font-semibold text-foreground"
-											{...props}
-										/>
-									),
-									a: ({ node, ...props }) => (
-										<a
-											className="text-primary underline underline-offset-4"
-											{...props}
-										/>
-									),
-								}}
-							>
-								{item.description}
-							</ReactMarkdown>
+							<MarkdownViewer content={item.description} />
 						</CardContent>
 					</Card>
 				);

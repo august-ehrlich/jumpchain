@@ -1,15 +1,7 @@
 import type { Document } from "../../../../types/document";
 import type { BuildStats } from "../../../../types/jumper";
 import { TabsList, TabsTrigger } from "../../../ui/tabs";
-import remarkGfm from "remark-gfm";
-import ReactMarkdown, { type Components } from "react-markdown";
-
-const mdComponents: Components = {
-	p: (props) => <p className="mb-3 last:mb-0 leading-relaxed" {...props} />,
-	ul: (props) => <ul className="list-disc pl-5 mb-3 space-y-1" {...props} />,
-	ol: (props) => <ol className="list-decimal pl-5 mb-3 space-y-1" {...props} />,
-	strong: (props) => <strong className="font-semibold text-foreground" {...props} />,
-};
+import { MarkdownViewer } from "../../../ui/MarkdownViewer";
 
 export function BuildSidebar({
 	document,
@@ -22,9 +14,7 @@ export function BuildSidebar({
 		<div className="w-[340px] lg:w-[380px] border-r bg-muted/10 flex flex-col h-full overflow-hidden shrink-0 z-10 shadow-[2px_0_10px_rgba(0,0,0,0.02)]">
 			{document.summary && (
 				<div className="p-5 border-b max-h-[40%] overflow-y-auto shrink-0 text-sm text-muted-foreground bg-muted/5">
-					<ReactMarkdown remarkPlugins={[remarkGfm]} components={mdComponents}>
-						{document.summary}
-					</ReactMarkdown>
+					<MarkdownViewer content={document.summary}/>
 				</div>
 			)}
 			

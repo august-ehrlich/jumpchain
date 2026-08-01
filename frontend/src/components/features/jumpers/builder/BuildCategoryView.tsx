@@ -1,20 +1,12 @@
-import { useState } from "react";
 import type { Document, TraitCategory } from "../../../../types/document";
 import type { BuildStats } from "../../../../types/jumper";
 import { TabsContent } from "../../../ui/tabs";
 import { Button } from "../../../ui/button";
 import { BuildTraitCard } from "./BuildTraitCard";
 import { Dices, Sparkles } from "lucide-react";
-import { toast } from "sonner";
-import remarkGfm from "remark-gfm";
-import ReactMarkdown, { type Components } from "react-markdown";
-
-const mdComponents: Components = {
-	p: (props) => <p className="mb-3 last:mb-0 leading-relaxed" {...props} />,
-	ul: (props) => <ul className="list-disc pl-5 mb-3 space-y-1" {...props} />,
-	ol: (props) => <ol className="list-decimal pl-5 mb-3 space-y-1" {...props} />,
-	strong: (props) => <strong className="font-semibold text-foreground" {...props} />,
-};
+import { MarkdownViewer } from "../../../ui/MarkdownViewer";
+import { calculateTraitCost } from "../../../../utils/buildUtils";
+import { useTraitRoller } from "../../../../hooks/useTraitRoller"; // Import the hook
 
 export function BuildCategoryView({
 	document,
@@ -29,51 +21,13 @@ export function BuildCategoryView({
 	hasRolledAge: boolean;
 	onToggle: (id: number, cat: TraitCategory, isMod: boolean) => void;
 }) {
-	const [rollingCategory, setRollingCategory] = useState<number | null>(null);
-	const [rollingName, setRollingName] = useState<string>("");
-	
-	const [wildcardWins, setWildcardWins] = useState<Set<number>>(new Set());
-
-	const handleRoll = (cat: TraitCategory) => {
-		const options = cat.traits.filter((t) => !t.is_modifier);
-		if (options.length === 0) return;
-
-		setRollingCategory(cat.id);
-
-		let counter = 0;
-		const interval = setInterval(() => {
-			const randomTrait = options[Math.floor(Math.random() * options.length)];
-			setRollingName(randomTrait.name || "Unknown Trait");
-			counter++;
-
-			if (counter > 30) {
-				clearInterval(interval);
-				const finalTrait = options[Math.floor(Math.random() * options.length)];
-				setRollingName(finalTrait.name || "Unknown Trait");
-				
-				setTimeout(() => {
-					if (finalTrait.id === cat.free_pick_trait_id) {
-						setWildcardWins((prev) => new Set(prev).add(cat.id));
-						toast.success(`You rolled ${finalTrait.name}! It's a Wildcard! Choose your path freely.`);
-					} else {
-						onToggle(finalTrait.id, cat, false);
-					}
-					setRollingCategory(null);
-				}, 600);
-			}
-		}, 50);
-	};
+	// Consume the hook instead of managing state locally
+	const { rollingCategory, rollingName, wildcardWins, triggerRoll } = useTraitRoller(onToggle);
 
 	const getTraitCost = (traitId: number) => {
 		const data = stats.traitMap.get(traitId);
 		if (!data) return 0;
-		let currentCost = data.trait.cost;
-		data.trait.discounts_received.forEach((d) => {
-			if (selectedIds.has(d.source_trait_id)) {
-				currentCost *= 1 - (d.discount / 100);
-			}
-		});
-		return Math.round(currentCost);
+		return calculateTraitCost(data.trait.cost, data.trait.discounts_received, selectedIds);
 	};
 
 	return (
@@ -103,9 +57,7 @@ export function BuildCategoryView({
 								<h3 className="text-3xl font-bold mb-4">{cat.name}</h3>
 								{cat.summary && (
 									<div className="text-base text-muted-foreground border-l-4 border-primary/40 pl-6 py-1 italic">
-										<ReactMarkdown remarkPlugins={[remarkGfm]} components={mdComponents}>
-											{cat.summary}
-										</ReactMarkdown>
+										<MarkdownViewer content={cat.summary} />
 									</div>
 								)}
 							</div>
@@ -133,7 +85,7 @@ export function BuildCategoryView({
 										<div className="flex gap-4 items-center mt-4">
 											<Button
 												size="lg"
-												onClick={() => handleRoll(cat)}
+												onClick={() => triggerRoll(cat)} // Use hook function
 												className="text-lg px-8 h-14"
 											>
 												Roll the Dice
@@ -178,9 +130,7 @@ export function BuildCategoryView({
 										}
 
 										const isLockedNonModifier = isRandom && !isBypassed && !hasWonWildcard && !trait.is_modifier;
-										
 										const isBypassLocked = hasRolled && trait.id === bypassTraitId;
-										
 										const isLocked = isLockedNonModifier || isBypassLocked;
 
 										return (

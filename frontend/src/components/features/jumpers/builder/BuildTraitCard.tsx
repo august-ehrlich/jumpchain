@@ -2,8 +2,8 @@ import type { Trait, TraitCategory } from "../../../../types/document";
 import { Card, CardHeader, CardTitle, CardContent } from "../../../ui/card";
 import { Badge } from "../../../ui/badge";
 import { Check, Lock } from "lucide-react";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
+import { MarkdownViewer } from "../../../ui/MarkdownViewer";
+import { calculateTraitCost } from "../../../../utils/buildUtils";
 
 interface BuildTraitCardProps {
 	trait: Trait;
@@ -24,18 +24,9 @@ export function BuildTraitCard({
 	getTraitName,
 	onToggle,
 }: BuildTraitCardProps) {
-	let displayCost = trait.cost;
-	let isDiscounted = false;
-
-	if (trait.cost > 0) {
-		trait.discounts_received.forEach((d) => {
-			if (selectedIds.has(d.source_trait_id)) {
-				displayCost *= 1 - d.discount / 100;
-				isDiscounted = true;
-			}
-		});
-		displayCost = Math.round(displayCost);
-	}
+	
+	const displayCost = calculateTraitCost(trait.cost, trait.discounts_received, selectedIds);
+	const isDiscounted = trait.cost > 0 && displayCost < trait.cost;
 
 	return (
 		<Card
@@ -95,9 +86,7 @@ export function BuildTraitCard({
 				</div>
 			</CardHeader>
 			<CardContent className="py-3 pt-0 text-sm">
-				<ReactMarkdown remarkPlugins={[remarkGfm]}>
-					{trait.description}
-				</ReactMarkdown>
+				<MarkdownViewer content={trait.description}/>
 				{trait.discounts_received.length > 0 && (
 					<div className="mt-3 flex flex-wrap gap-1">
 						{trait.discounts_received.map((d, _) => (

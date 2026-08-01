@@ -11,6 +11,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "../../../ui/select";
+import { getTraitNameById } from "../../../../utils/documentUtils"; // Import utility
 
 export function DiscountPicker({
 	currentTraitId,
@@ -36,24 +37,17 @@ export function DiscountPicker({
 		setDiscountValue("");
 	};
 
-	// Helper to find the exact name of the selected trait ID
-	const getSelectedName = () => {
-		if (!sourceId) return undefined;
-		const id = parseInt(sourceId, 10);
-		for (const cat of allCategories) {
-			const found = cat.traits.find((t) => t.id === id);
-			if (found) return found.name || "Unnamed Trait";
-		}
-		return "Unknown";
-	};
+	// Use utility instead of manual loop
+	const displayName = sourceId 
+		? getTraitNameById(allCategories, parseInt(sourceId, 10)) 
+		: undefined;
 
 	return (
 		<div className="flex items-center gap-2 pt-1">
 			<Select value={sourceId} onValueChange={(val) => setSourceId(val || "")}>
 				<SelectTrigger className="w-[280px] h-9">
-					{/* Explicitly pass the resolved string title so it never shows the ID */}
 					<SelectValue placeholder="Select requirement/origin...">
-						{getSelectedName()}
+						{displayName}
 					</SelectValue>
 				</SelectTrigger>
 				<SelectContent>

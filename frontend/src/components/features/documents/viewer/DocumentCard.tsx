@@ -20,8 +20,8 @@ import {
 	AlertDialogTitle,
 	AlertDialogTrigger,
 } from "../../../ui/alert-dialog";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
+// Import the new shared component
+import { MarkdownViewer } from "../../../ui/MarkdownViewer";
 
 interface DocumentCardProps {
 	doc: Document;
@@ -53,7 +53,6 @@ export function DocumentCard({
 			className="cursor-pointer hover:border-primary/50 transition-all hover:shadow-md group relative"
 			onClick={() => onClick(doc)}
 		>
-			{/* Absolute positioned action buttons (visible on hover) */}
 			<div className="absolute top-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
 				<Button
 					variant="secondary"
@@ -102,7 +101,6 @@ export function DocumentCard({
 			</div>
 
 			<CardHeader>
-				{/* pr-16 prevents long titles from sliding under the buttons */}
 				<CardTitle className="group-hover:text-primary transition-colors pr-16">
 					{doc.title}
 				</CardTitle>
@@ -111,37 +109,7 @@ export function DocumentCard({
 				</CardDescription>
 			</CardHeader>
 			<CardContent className="py-3 pt-0 text-sm text-muted-foreground line-clamp-5 overflow-hidden [&>*]:inline [&>p]:inline">
-				<ReactMarkdown
-					remarkPlugins={[remarkGfm]}
-					components={{
-						del: ({ node, ...props }) => (
-							<del
-								className="line-through text-muted-foreground/70"
-								{...props}
-							/>
-						),
-						p: ({ node, ...props }) => (
-							<p className="mb-4 last:mb-0" {...props} />
-						),
-						ul: ({ node, ...props }) => (
-							<ul className="list-disc pl-5 mt-2 space-y-1" {...props} />
-						),
-						ol: ({ node, ...props }) => (
-							<ol className="list-decimal pl-5 mt-2 space-y-1" {...props} />
-						),
-						strong: ({ node, ...props }) => (
-							<strong className="font-semibold text-foreground" {...props} />
-						),
-						a: ({ node, ...props }) => (
-							<a
-								className="text-primary underline underline-offset-4"
-								{...props}
-							/>
-						),
-					}}
-				>
-					{doc.summary}
-				</ReactMarkdown>
+				<MarkdownViewer content={doc.summary} />
 			</CardContent>
 		</Card>
 	);
