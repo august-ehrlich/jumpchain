@@ -4,7 +4,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import HTTPException
 
 from models.jumper import Jumper, Build
-from models.document import Trait
 from schemas.jumper import JumperCreate, BuildCreate, BuildUpdate
 from crud.document import get_document
 from services.build_logic import validate_and_calculate_build
@@ -14,7 +13,7 @@ async def get_jumper(db: AsyncSession, jumper_id: int):
         select(Jumper)
         .where(Jumper.id == jumper_id)
         .options(
-            selectinload(Jumper.builds).selectinload(Build.traits).selectinload(Trait.discounts_received),
+            selectinload(Jumper.builds).selectinload(Build.traits),
             selectinload(Jumper.builds).selectinload(Build.document)
         )
     )
@@ -22,7 +21,7 @@ async def get_jumper(db: AsyncSession, jumper_id: int):
 
 async def get_all_jumpers(db: AsyncSession):
     stmt = select(Jumper).options(
-        selectinload(Jumper.builds).selectinload(Build.traits).selectinload(Trait.discounts_received),
+        selectinload(Jumper.builds).selectinload(Build.traits),
         selectinload(Jumper.builds).selectinload(Build.document)
     )
     result = await db.execute(stmt)
@@ -67,7 +66,7 @@ async def create_build(db: AsyncSession, build: BuildCreate) -> Build:
         select(Build)
         .where(Build.id == db_build.id)
         .options(
-            selectinload(Build.traits).selectinload(Trait.discounts_received)
+            selectinload(Build.traits)
         )
     )
     result = await db.execute(stmt)

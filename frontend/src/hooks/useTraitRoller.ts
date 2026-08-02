@@ -7,7 +7,7 @@ export function useTraitRoller(onToggle: (id: number, cat: TraitCategory, isMod:
 	const [rollingName, setRollingName] = useState<string>("");
 	const [wildcardWins, setWildcardWins] = useState<Set<number>>(new Set());
 
-	const triggerRoll = useCallback((cat: TraitCategory) => {
+	const triggerRoll = useCallback((cat: TraitCategory, freePickId: number | null = null) => {
 		const options = cat.traits.filter((t) => !t.is_modifier);
 		if (options.length === 0) return;
 
@@ -25,7 +25,7 @@ export function useTraitRoller(onToggle: (id: number, cat: TraitCategory, isMod:
 				setRollingName(finalTrait.name || "Unknown Trait");
 				
 				setTimeout(() => {
-					if (finalTrait.id === cat.free_pick_trait_id) {
+					if (finalTrait.id === freePickId) {
 						setWildcardWins((prev) => new Set(prev).add(cat.id));
 						toast.success(`You rolled ${finalTrait.name}! It's a Wildcard! Choose your path freely.`);
 					} else {
@@ -37,10 +37,5 @@ export function useTraitRoller(onToggle: (id: number, cat: TraitCategory, isMod:
 		}, 50);
 	}, [onToggle]);
 
-	return {
-		rollingCategory,
-		rollingName,
-		wildcardWins,
-		triggerRoll,
-	};
+	return { rollingCategory, rollingName, wildcardWins, triggerRoll };
 }

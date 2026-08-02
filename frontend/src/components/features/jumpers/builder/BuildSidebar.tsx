@@ -31,10 +31,12 @@ export function BuildSidebar({
 						>
 							<div className="flex flex-col items-start gap-0.5 w-full">
 								<span className="font-semibold">{cat.name}</span>
-								<span className="text-xs opacity-70 font-normal">
-									{stats.catCounts[cat.id] || 0}
-									{cat.max_allowed !== -1 ? ` / ${cat.max_allowed}` : ""} Selected
-								</span>
+								{!cat.is_ordering &&
+									<span className="text-xs opacity-70 font-normal">
+										{stats.catCounts[cat.id] || 0}
+										{cat.max_allowed !== -1 ? ` / ${cat.max_allowed}` : ""} Selected
+									</span>
+								}
 							</div>
 						</TabsTrigger>
 					))}

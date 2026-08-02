@@ -37,8 +37,6 @@ export function DocumentTabs({ document }: { document: Document }) {
 					)}
 					<TraitList
 						items={cat.traits}
-						hasCost={cat.has_cost}
-						allCategories={document.categories}
 					/>
 				</TabsContent>
 			))}

@@ -3,15 +3,13 @@ import { Card, CardHeader, CardTitle, CardContent } from "../../../ui/card";
 import { Badge } from "../../../ui/badge";
 import { Check, Lock } from "lucide-react";
 import { MarkdownViewer } from "../../../ui/MarkdownViewer";
-import { calculateTraitCost } from "../../../../utils/buildUtils";
 
 interface BuildTraitCardProps {
 	trait: Trait;
 	category: TraitCategory;
 	isSelected: boolean;
-	selectedIds: Set<number>;
 	isLocked?: boolean; 
-	getTraitName: (id: number) => string;
+	finalCost: number;
 	onToggle: () => void;
 }
 
@@ -19,14 +17,12 @@ export function BuildTraitCard({
 	trait,
 	category,
 	isSelected,
-	selectedIds,
 	isLocked = false,
-	getTraitName,
+	finalCost,
 	onToggle,
 }: BuildTraitCardProps) {
 	
-	const displayCost = calculateTraitCost(trait.cost, trait.discounts_received, selectedIds);
-	const isDiscounted = trait.cost > 0 && displayCost < trait.cost;
+	const isDiscounted = trait.cost > 0 && finalCost < trait.cost;
 
 	return (
 		<Card
@@ -57,26 +53,23 @@ export function BuildTraitCard({
 				</div>
 
 				<div className="flex items-center justify-end gap-3 shrink-0">
-					{category.has_cost && (
-						<div className="flex items-center gap-2">
-							{isDiscounted && (
-								<span className="text-xs line-through text-muted-foreground">
-									{trait.cost}
-								</span>
-							)}
-							<Badge
-								variant={trait.cost < 0 ? "default" : "outline"}
-								className={trait.cost < 0 ? "bg-primary" : ""}
-							>
-								{displayCost === 0
-									? "Free"
-									: trait.cost < 0
-										? `+${Math.abs(displayCost)} CP`
-										: `-${displayCost} CP`}
-							</Badge>
-						</div>
-					)}
-
+					<div className="flex items-center gap-2">
+						{isDiscounted && (
+							<span className="text-xs line-through text-muted-foreground">
+								{trait.cost}
+							</span>
+						)}
+						<Badge
+							variant={trait.cost < 0 ? "default" : "outline"}
+							className={trait.cost < 0 ? "bg-primary" : ""}
+						>
+							{finalCost === 0
+								? "Free"
+								: trait.cost < 0
+									? `+${Math.abs(finalCost)} CP`
+									: `-${finalCost} CP`}
+						</Badge>
+					</div>
 					<div className="w-5 h-5 flex items-center justify-center">
 						{isSelected && (
 							isLocked ? <Lock size={18} className="text-primary" /> : <Check size={20} className="stroke-[3px] text-primary" />
@@ -87,21 +80,6 @@ export function BuildTraitCard({
 			</CardHeader>
 			<CardContent className="py-3 pt-0 text-sm">
 				<MarkdownViewer content={trait.description}/>
-				{trait.discounts_received.length > 0 && (
-					<div className="mt-3 flex flex-wrap gap-1">
-						{trait.discounts_received.map((d, _) => (
-							<Badge
-								key={d.source_trait_id}
-								variant={
-									selectedIds.has(d.source_trait_id) ? "default" : "secondary"
-								}
-								className="text-[10px]"
-							>
-								{d.discount}% off from {getTraitName(d.source_trait_id)}
-							</Badge>
-						))}
-					</div>
-				)}
 			</CardContent>
 		</Card>
 	);

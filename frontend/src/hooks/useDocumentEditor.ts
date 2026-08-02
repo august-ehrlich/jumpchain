@@ -13,10 +13,8 @@ export function useDocumentEditor<T extends Document | Omit<Document, "id">>(ini
 			const newCategory: TraitCategory = {
 				id: -Date.now(),
 				name: "",
-				has_cost: true,
 				max_allowed: 1,
 				is_random: false,
-				bypass_trait_id: null,
 				traits: [],
 			};
 			return { ...prev, categories: [...prev.categories, newCategory] };
@@ -45,7 +43,7 @@ export function useDocumentEditor<T extends Document | Omit<Document, "id">>(ini
 			const newId = -(Date.now() + Math.floor(Math.random() * 10000));
 			newCategories[categoryIndex].traits = [
 				...newCategories[categoryIndex].traits,
-				{ id: newId, name: "", description: "", cost: 0, is_modifier: false, discounts_received: [] },
+				{ id: newId, name: "", description: "", cost: 0, is_modifier: false },
 			];
 			return { ...prev, categories: newCategories };
 		});

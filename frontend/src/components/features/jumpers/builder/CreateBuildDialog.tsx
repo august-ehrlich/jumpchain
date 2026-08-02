@@ -1,5 +1,5 @@
-import { useState } from "react";
-import type { Document, TraitCategory } from "../../../../types/document";
+import { useState, useEffect } from "react";
+import type { Document } from "../../../../types/document";
 import type { Build, Jumper } from "../../../../types/jumper";
 import { jumperApi } from "../../../../api/jumpers";
 import { toast } from "sonner";
@@ -9,8 +9,7 @@ import { Tabs } from "../../../ui/tabs";
 import { BuildSidebar } from "./BuildSidebar";
 import { BuildCategoryView } from "./BuildCategoryView";
 import { BuildTopBar } from "./BuildTopBar";
-import { useBuildEditor } from "../../../../hooks/useBuildEditor"; // Import the hook
-import { calculateTraitCost } from "../../../../utils/buildUtils";
+import { useBuildStore } from "../../../../stores/useBuildStore"; // Switched from useBuildEditor
 
 interface Props {
 	jumper: Jumper;
@@ -27,51 +26,34 @@ export function CreateBuildDialog({
 	onOpenChange,
 	onSuccess,
 }: Props) {
+	// Pull everything from our Rule-Engine powered Zustand store
 	const {
+		initBuild,
+		clearBuild,
 		selectedIds,
 		buildAge,
 		setBuildAge,
 		buildGender,
-		setBuildGender,
 		hasRolledAge,
 		setHasRolledAge,
 		stats,
 		toggleTrait,
-	} = useBuildEditor(jumper, document, buildToEdit);
+	} = useBuildStore();
+
+	// Initialize the store when the dialog opens
+	useEffect(() => {
+		initBuild(jumper, document, buildToEdit);
+		return () => clearBuild();
+	}, [initBuild, clearBuild, jumper, document, buildToEdit]);
 
 	const [isRollingAge, setIsRollingAge] = useState(false);
 	const [rollingAgeVal, setRollingAgeVal] = useState<number>(document.age_roll_min);
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
-	const bypassAgeId = document.age_bypass_trait_id;
-	const hasAgeBypass = bypassAgeId != null && selectedIds.has(bypassAgeId);
+	// Read bypasses from the engine output
+	const hasAgeBypass = stats?.bypassAgeRoll;
+	const canPickGender = stats?.bypassGenderLock;
 	const numAge = parseInt(buildAge, 10);
-	const isAgeOutOfBounds = document.has_random_age && buildAge !== "" && (numAge < document.age_roll_min || numAge > document.age_roll_max);
-
-	const genderBypassId = document.gender_bypass_trait_id;
-	const canPickGender = genderBypassId != null && selectedIds.has(genderBypassId);
-
-	const getTraitCost = (traitId: number) => {
-		const data = stats.traitMap.get(traitId);
-		if (!data) return 0;
-		return calculateTraitCost(data.trait.cost, data.trait.discounts_received, selectedIds);
-	};
-
-	const handleBuyAgeBypass = () => {
-		if (!bypassAgeId) return;
-		const data = stats.traitMap.get(bypassAgeId);
-		if (!data) return;
-		const category = document.categories.find(c => c.id === data.catId);
-		if (category) toggleTrait(bypassAgeId, category, data.trait.is_modifier);
-	};
-
-	const handleBuyGenderBypass = () => {
-		if (!genderBypassId) return;
-		const data = stats.traitMap.get(genderBypassId);
-		if (!data) return;
-		const category = document.categories.find(c => c.id === data.catId);
-		if (category) toggleTrait(genderBypassId, category, data.trait.is_modifier);
-	};
 
 	const handleRollAge = () => {
 		setIsRollingAge(true);
@@ -96,6 +78,7 @@ export function CreateBuildDialog({
 	};
 
 	const handleSubmit = async () => {
+		if (!stats) return;
 		if (stats.remainingCp < 0) return toast.error("You don't have enough CP!");
 		
 		if (document.has_random_age) {
@@ -126,31 +109,27 @@ export function CreateBuildDialog({
 		}
 	};
 
+	const [categoryOrders, setCategoryOrders] = useState<Record<number, number[]>>({});
+
+	const handleOrderChange = (categoryId: number, newIds: number[]) => {
+		setCategoryOrders(prev => ({
+			...prev,
+			[categoryId]: newIds
+		}));
+	};
+	// Don't render until the store has initialized the document and stats
+	if (!stats || !useBuildStore.getState().document) return null;
+
 	return (
 		<Dialog open={true} onOpenChange={onOpenChange}>
 			<DialogContent className="max-w-[80vw] w-full h-[90vh] p-0 gap-0 overflow-hidden flex flex-col" showCloseButton={false}>
 				
+				{/* Drastically simplified props since TopBar now reads the store directly */}
 				<BuildTopBar
-					document={document}
-					isEditing={!!buildToEdit}
-					stats={stats}
-					buildAge={buildAge}
-					setBuildAge={setBuildAge}
-					hasRolledAge={hasRolledAge}
+					onClose={() => onOpenChange(false)}
+					onRollAge={handleRollAge}
 					isRollingAge={isRollingAge}
 					rollingAgeVal={rollingAgeVal}
-					onRollAge={handleRollAge}
-					hasAgeBypass={hasAgeBypass}
-					isAgeOutOfBounds={!!isAgeOutOfBounds}
-					bypassAgeId={bypassAgeId}
-					onBuyAgeBypass={handleBuyAgeBypass}
-					buildGender={buildGender}
-					setBuildGender={setBuildGender}
-					canPickGender={canPickGender}
-					genderBypassId={genderBypassId}
-					onBuyGenderBypass={handleBuyGenderBypass}
-					onClose={() => onOpenChange(false)}
-					getTraitCost={getTraitCost}
 				/>
 
 				<Tabs defaultValue={document.categories[0]?.id.toString()} orientation="vertical" className="flex-1 flex overflow-hidden">
@@ -163,6 +142,8 @@ export function CreateBuildDialog({
 							stats={stats}
 							hasRolledAge={hasRolledAge}
 							onToggle={toggleTrait}
+							categoryOrders={categoryOrders}
+    						onOrderChange={handleOrderChange}
 						/>
 
 						<div className="absolute bottom-0 right-0 left-0 bg-background/80 backdrop-blur-sm border-t p-4 flex justify-end gap-3 z-10 shadow-[0_-10px_30px_rgba(0,0,0,0.05)]">

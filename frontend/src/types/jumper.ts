@@ -4,6 +4,10 @@ export interface BuildStats {
   remainingCp: number;
   catCounts: Record<number, number>;
   traitMap: Map<number, { trait: Trait; catId: number }>;
+  lockedTraits: Set<number>;
+  finalCosts: Map<number, number>;
+  bypassAgeRoll: boolean;
+  bypassGenderLock: boolean;
 }
 
 export interface Jumper {

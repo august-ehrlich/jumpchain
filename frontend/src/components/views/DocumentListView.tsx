@@ -14,7 +14,6 @@ export default function DocumentListView() {
 	const [documents, setDocuments] = useState<Document[]>([]);
 	const [loading, setLoading] = useState(true);
 
-	// UI Modal States
 	const [selectedDoc, setSelectedDoc] = useState<Document | null>(null);
 	const [editingDoc, setEditingDoc] = useState<Document | null>(null);
 	const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -77,7 +76,7 @@ export default function DocumentListView() {
 			<CreateDocumentDialog
 				isOpen={isCreateOpen}
 				onOpenChange={setIsCreateOpen}
-				onSuccess={(created) => {
+				onSuccess={(created : any) => {
 					setDocuments([...documents, created]);
 					setIsCreateOpen(false);
 				}}

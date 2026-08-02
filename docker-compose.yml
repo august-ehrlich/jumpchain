@@ -23,15 +23,16 @@ services:
       - db
 
   frontend:
-    build: ./frontend
-    command: npm run dev -- --host 0.0.0.0
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-    ports:
-      - "5173:5173"
-    depends_on:
-      - api
+      build: 
+        context: ./frontend
+        target: dev  # <--- Change this to 'dev' or 'prod'
+      volumes:
+        - ./frontend:/app
+        - /app/node_modules
+      ports:
+        - "5173:5173"
+      depends_on:
+        - api
 
 volumes:
   postgres_data:

@@ -3,6 +3,8 @@ import { Input } from "../../../ui/input";
 import { Textarea } from "../../../ui/textarea";
 import { Label } from "../../../ui/label";
 import type { DocumentFormData } from "../../../../schemas/documentSchema";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../../../ui/accordion";
+import { RulesJsonEditor } from "./rules/RulesJsonEditor";
 
 export function DocumentBasicsForm() {
 	const { register, watch, formState: { errors } } = useFormContext<DocumentFormData>();
@@ -56,6 +58,19 @@ export function DocumentBasicsForm() {
 					</div>
 				)}
 			</div>
+			<Accordion className="w-full border-t pt-4 mt-6">
+				<AccordionItem value="rules" className="border-none">
+					<AccordionTrigger className="text-lg font-semibold hover:no-underline">
+						Advanced Rules & Logic (JSON)
+					</AccordionTrigger>
+					<AccordionContent className="pt-4">
+						<p className="text-sm text-muted-foreground mb-4">
+							Define cross-category interactions, conditional discounts, and bypasses.
+						</p>
+						<RulesJsonEditor />
+					</AccordionContent>
+				</AccordionItem>
+			</Accordion>
 		</div>
 	);
 }

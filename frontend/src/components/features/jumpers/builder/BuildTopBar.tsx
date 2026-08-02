@@ -1,31 +1,50 @@
+import { useMemo } from "react";
 import { Input } from "../../../ui/input";
 import { Label } from "../../../ui/label";
 import { Button } from "../../../ui/button";
 import { X, Dices, AlertTriangle } from "lucide-react";
 import { useBuildStore } from "../../../../stores/useBuildStore";
-import { calculateTraitCost } from "../../../../utils/buildUtils";
 
 export function BuildTopBar({ onClose, onRollAge, isRollingAge, rollingAgeVal }: any) {
 	const { 
-        document, buildToEdit, stats, buildAge, setBuildAge, 
-        hasRolledAge, buildGender, setBuildGender, toggleTrait, selectedIds 
-    } = useBuildStore();
+		document, buildToEdit, stats, buildAge, setBuildAge, 
+		hasRolledAge, buildGender, setBuildGender, toggleTrait, selectedIds
+	} = useBuildStore();
+
+	const { bypassAgeId, bypassGenderId } = useMemo(() => {
+		let ageId: number | null = null;
+		let genderId: number | null = null;
+
+		if (!document?.rules) return { bypassAgeId: null, bypassGenderId: null };
+
+		document.rules.forEach(rule => {
+			const grantsAge = rule.effects.some(e => e.type === "BYPASS_AGE_ROLL");
+			const grantsGender = rule.effects.some(e => e.type === "BYPASS_GENDER_LOCK");
+			
+			if (grantsAge || grantsGender) {
+				const requiredTraitCond = rule.conditions.find(c => c.type === "HAS_TRAIT");
+				if (requiredTraitCond?.targetId) {
+					if (grantsAge) ageId = requiredTraitCond.targetId;
+					if (grantsGender) genderId = requiredTraitCond.targetId;
+				}
+			}
+		});
+
+		return { bypassAgeId: ageId, bypassGenderId: genderId };
+	}, [document?.rules]);
 
 	if (!document) return null;
 
 	const isEditing = !!buildToEdit;
-	const bypassAgeId = document.age_bypass_trait_id;
-	const hasAgeBypass = bypassAgeId != null && selectedIds.has(bypassAgeId);
+	const hasAgeBypass = stats.bypassAgeRoll;
+	const canPickGender = stats.bypassGenderLock;
+
 	const numAge = parseInt(buildAge, 10);
 	const isAgeOutOfBounds = document.has_random_age && buildAge !== "" && (numAge < document.age_roll_min || numAge > document.age_roll_max);
 
-	const genderBypassId = document.gender_bypass_trait_id;
-	const canPickGender = genderBypassId != null && selectedIds.has(genderBypassId);
-
-    const getTraitCost = (traitId: number) => {
-		const data = stats.traitMap.get(traitId);
-		if (!data) return 0;
-		return calculateTraitCost(data.trait.cost, data.trait.discounts_received, selectedIds);
+	// Helpers to buy/toggle the discovered traits
+	const getTraitCost = (traitId: number) => {
+		return stats.finalCosts.get(traitId) ?? 0;
 	};
 
 	const onBuyAgeBypass = () => {
@@ -37,11 +56,11 @@ export function BuildTopBar({ onClose, onRollAge, isRollingAge, rollingAgeVal }:
 	};
 
 	const onBuyGenderBypass = () => {
-		if (!genderBypassId) return;
-		const data = stats.traitMap.get(genderBypassId);
+		if (!bypassGenderId) return;
+		const data = stats.traitMap.get(bypassGenderId);
 		if (!data) return;
 		const category = document.categories.find(c => c.id === data.catId);
-		if (category) toggleTrait(genderBypassId, category, data.trait.is_modifier);
+		if (category) toggleTrait(bypassGenderId, category, data.trait.is_modifier);
 	};
 
 	return (
@@ -91,8 +110,7 @@ export function BuildTopBar({ onClose, onRollAge, isRollingAge, rollingAgeVal }:
 							/>
 							{isAgeOutOfBounds && (
 								<span className="absolute -bottom-5 left-1/2 -translate-x-1/2 text-[10px] text-destructive font-semibold whitespace-nowrap flex items-center gap-1">
-									<AlertTriangle size={10} /> {document.age_roll_min}-
-									{document.age_roll_max}
+									<AlertTriangle size={10} /> {document.age_roll_min}-{document.age_roll_max}
 								</span>
 							)}
 						</div>
@@ -112,12 +130,7 @@ export function BuildTopBar({ onClose, onRollAge, isRollingAge, rollingAgeVal }:
 								</Button>
 							)}
 							{bypassAgeId && stats.traitMap.has(bypassAgeId) && !isRollingAge && (
-								<Button
-									onClick={onBuyAgeBypass}
-									variant="outline"
-									size="sm"
-									className="h-9"
-								>
+								<Button onClick={onBuyAgeBypass} variant="outline" size="sm" className="h-9">
 									Bypass ({getTraitCost(bypassAgeId)} CP)
 								</Button>
 							)}
@@ -143,14 +156,9 @@ export function BuildTopBar({ onClose, onRollAge, isRollingAge, rollingAgeVal }:
 							<div className="px-4 min-w-[5rem] text-center font-bold text-sm h-9 bg-muted/10 text-muted-foreground flex items-center justify-center rounded-md border shadow-inner">
 								{buildGender}
 							</div>
-							{genderBypassId && stats.traitMap.has(genderBypassId) && (
-								<Button
-									onClick={onBuyGenderBypass}
-									variant="outline"
-									size="sm"
-									className="h-9"
-								>
-									Unlock ({getTraitCost(genderBypassId)} CP)
+							{bypassGenderId && stats.traitMap.has(bypassGenderId) && (
+								<Button onClick={onBuyGenderBypass} variant="outline" size="sm" className="h-9">
+									Unlock ({getTraitCost(bypassGenderId)} CP)
 								</Button>
 							)}
 						</div>
@@ -158,12 +166,7 @@ export function BuildTopBar({ onClose, onRollAge, isRollingAge, rollingAgeVal }:
 				</div>
 			</div>
 
-			<Button
-				variant="ghost"
-				size="icon"
-				onClick={onClose}
-				className="shrink-0 text-muted-foreground hover:text-foreground"
-			>
+			<Button variant="ghost" size="icon" onClick={onClose} className="shrink-0 text-muted-foreground hover:text-foreground">
 				<X size={24} />
 			</Button>
 		</div>

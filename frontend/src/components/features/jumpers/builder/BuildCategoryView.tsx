@@ -1,12 +1,13 @@
+import { useMemo } from "react";
 import type { Document, TraitCategory } from "../../../../types/document";
 import type { BuildStats } from "../../../../types/jumper";
 import { TabsContent } from "../../../ui/tabs";
 import { Button } from "../../../ui/button";
 import { BuildTraitCard } from "./BuildTraitCard";
+import { RankedTraitList } from "./RankedTraitList"; // <-- Import the new component
 import { Dices, Sparkles } from "lucide-react";
 import { MarkdownViewer } from "../../../ui/MarkdownViewer";
-import { calculateTraitCost } from "../../../../utils/buildUtils";
-import { useTraitRoller } from "../../../../hooks/useTraitRoller"; // Import the hook
+import { useTraitRoller } from "../../../../hooks/useTraitRoller";
 
 export function BuildCategoryView({
 	document,
@@ -14,29 +15,62 @@ export function BuildCategoryView({
 	stats,
 	hasRolledAge,
 	onToggle,
+	categoryOrders = {}, 
+	onOrderChange,
 }: {
 	document: Document;
 	selectedIds: Set<number>;
 	stats: BuildStats;
 	hasRolledAge: boolean;
 	onToggle: (id: number, cat: TraitCategory, isMod: boolean) => void;
+	categoryOrders?: Record<number, number[]>;
+	onOrderChange?: (categoryId: number, newIds: number[]) => void;
 }) {
-	// Consume the hook instead of managing state locally
 	const { rollingCategory, rollingName, wildcardWins, triggerRoll } = useTraitRoller(onToggle);
 
+	const ruleMetadata = useMemo(() => {
+		const catMap = new Map<number, { bypass: number | null; freePick: number | null }>();
+		let globalAgeBypass: number | null = null;
+
+		document.rules?.forEach(rule => {
+			const hasTraitCond = rule.conditions.find(c => c.type === "HAS_TRAIT");
+			if (!hasTraitCond?.targetId) return;
+			const triggerId = hasTraitCond.targetId;
+
+			rule.effects.forEach(eff => {
+				if (eff.type === "BYPASS_AGE_ROLL") globalAgeBypass = triggerId;
+				
+				if (eff.type === "BYPASS_CATEGORY_LIMIT" && eff.targetId) {
+					const current = catMap.get(eff.targetId) || { bypass: null, freePick: null };
+					current.bypass = triggerId;
+					catMap.set(eff.targetId, current);
+				}
+				
+				if (eff.type === "FREE_PICK_CATEGORY" && eff.targetId) {
+					const current = catMap.get(eff.targetId) || { bypass: null, freePick: null };
+					current.freePick = triggerId;
+					catMap.set(eff.targetId, current);
+				}
+			});
+		});
+
+		return { catMap, globalAgeBypass };
+	}, [document.rules]);
+
 	const getTraitCost = (traitId: number) => {
-		const data = stats.traitMap.get(traitId);
-		if (!data) return 0;
-		return calculateTraitCost(data.trait.cost, data.trait.discounts_received, selectedIds);
+		return stats.finalCosts.get(traitId) ?? 0;
 	};
 
 	return (
 		<>
 			{document.categories.map((cat) => {
 				const isRandom = cat.is_random;
-				const bypassTraitId = cat.bypass_trait_id;
-				const isBypassed = bypassTraitId ? selectedIds.has(bypassTraitId) : false;
 				
+				const categoryRules = ruleMetadata.catMap.get(cat.id);
+				const bypassTraitId = categoryRules?.bypass ?? null;
+				const freePickTraitId = categoryRules?.freePick ?? null;
+				
+				const isBypassed = bypassTraitId ? selectedIds.has(bypassTraitId) : false;
 				const hasWonWildcard = wildcardWins.has(cat.id);
 
 				const nonModifierIds = cat.traits.filter((t) => !t.is_modifier).map((t) => t.id);
@@ -85,7 +119,7 @@ export function BuildCategoryView({
 										<div className="flex gap-4 items-center mt-4">
 											<Button
 												size="lg"
-												onClick={() => triggerRoll(cat)} // Use hook function
+												onClick={() => triggerRoll(cat, freePickTraitId)}
 												className="text-lg px-8 h-14"
 											>
 												Roll the Dice
@@ -116,39 +150,39 @@ export function BuildCategoryView({
 										</div>
 									)}
 								
-									{cat.traits.map((trait) => {
-										if (trait.id === cat.free_pick_trait_id && (hasWonWildcard || isBypassed)) {
-											return null;
-										}
+									{cat.is_ordering ? (
+										<RankedTraitList 
+											traits={cat.traits}
+											orderedIds={categoryOrders[cat.id] || []}
+											onOrderChange={(newIds) => onOrderChange?.(cat.id, newIds)}
+										/>
+									) : (
+										cat.traits.map((trait) => {
+											if (trait.id === freePickTraitId && (hasWonWildcard || isBypassed)) return null;
+											if (trait.id === bypassTraitId && (hasWonWildcard || hasRolled)) return null;
+											if (hasRolledAge && trait.id === ruleMetadata.globalAgeBypass) return null;
 
-										if (trait.id === bypassTraitId && (hasWonWildcard || hasRolled)) {
-											return null;
-										}
-										
-										if (hasRolledAge && trait.id === document.age_bypass_trait_id) {
-											return null;
-										}
+											const isLockedNonModifier = isRandom && !isBypassed && !hasWonWildcard && !trait.is_modifier;
+											const isBypassLocked = hasRolled && trait.id === bypassTraitId;
+											
+											const isLocked = isLockedNonModifier || isBypassLocked || stats.lockedTraits.has(trait.id);
 
-										const isLockedNonModifier = isRandom && !isBypassed && !hasWonWildcard && !trait.is_modifier;
-										const isBypassLocked = hasRolled && trait.id === bypassTraitId;
-										const isLocked = isLockedNonModifier || isBypassLocked;
-
-										return (
-											<BuildTraitCard
-												key={trait.id}
-												trait={trait}
-												category={cat}
-												isSelected={selectedIds.has(trait.id)}
-												isLocked={isLocked}
-												selectedIds={selectedIds}
-												getTraitName={(id) => stats.traitMap.get(id)?.trait.name || "Unknown"}
-												onToggle={() => {
-													if (isLocked) return;
-													onToggle(trait.id, cat, trait.is_modifier);
-												}}
-											/>
-										);
-									})}
+											return (
+												<BuildTraitCard
+													key={trait.id}
+													trait={trait}
+													category={cat}
+													isSelected={selectedIds.has(trait.id)}
+													isLocked={isLocked}
+													finalCost={getTraitCost(trait.id)}
+													onToggle={() => {
+														if (isLocked) return;
+														onToggle(trait.id, cat, trait.is_modifier);
+													}}
+												/>
+											);
+										})
+									)}
 								</div>
 							)}
 						</div>
