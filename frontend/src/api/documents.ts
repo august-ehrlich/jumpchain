@@ -1,5 +1,5 @@
 import { apiClient } from "./client";
-import type { Document } from "../types/document"; // Import the type
+import type { Document } from "../schemas/documentSchema"; // Import the type
 
 export const documentApi = {
 	get: async (id: number): Promise<Document> => {

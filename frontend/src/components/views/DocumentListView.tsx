@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { documentApi } from "../../api/documents";
-import type { Document } from "../../types/document";
+import type { Document } from "../../schemas/documentSchema";
 import { toast } from "sonner";
 import { Plus } from "lucide-react";
 import { Button } from "../ui/button";

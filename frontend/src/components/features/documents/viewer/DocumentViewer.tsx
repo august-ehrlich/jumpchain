@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { documentApi } from "../../../../api/documents";
-import type { Document } from "../../../../types/document";
+import type { Document } from "../../../../schemas/documentSchema";
 import { DocumentHeader } from "./DocumentHeader";
 import { DocumentTabs } from "./DocumentTabs";
 

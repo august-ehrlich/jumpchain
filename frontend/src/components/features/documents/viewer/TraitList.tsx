@@ -1,4 +1,4 @@
-import type { Trait } from "../../../../types/document";
+import type { Trait } from "../../../../schemas/documentSchema";
 import { Card, CardHeader, CardTitle, CardContent } from "../../../ui/card";
 import { Badge } from "../../../ui/badge";
 import { MarkdownViewer } from "../../../ui/MarkdownViewer";

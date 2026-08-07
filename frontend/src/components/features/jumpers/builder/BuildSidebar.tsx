@@ -1,4 +1,4 @@
-import type { Document } from "../../../../types/document";
+import type { Document } from "../../../../schemas/documentSchema";
 import type { BuildStats } from "../../../../types/jumper";
 import { TabsList, TabsTrigger } from "../../../ui/tabs";
 import { MarkdownViewer } from "../../../ui/MarkdownViewer";

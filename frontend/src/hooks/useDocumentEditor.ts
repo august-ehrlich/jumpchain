@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import type { Document, TraitCategory, Trait } from "../types/document";
+import type { Document, TraitCategory, Trait } from "../schemas/documentSchema";
 
 export function useDocumentEditor<T extends Document | Omit<Document, "id">>(initialState: T) {
 	const [doc, setDoc] = useState<T>(initialState);

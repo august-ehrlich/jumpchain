@@ -3,7 +3,7 @@ import { jumperApi } from "../../api/jumpers";
 import { documentApi } from "../../api/documents";
 import { toast } from "sonner";
 import type { Jumper, Build } from "../../types/jumper";
-import type { Document } from "../../types/document";
+import type { Document } from "../../schemas/documentSchema";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import {

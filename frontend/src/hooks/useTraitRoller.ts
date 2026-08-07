@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { toast } from "sonner";
-import type { TraitCategory } from "../types/document";
+import type { TraitCategory } from "../schemas/documentSchema";
 
 export function useTraitRoller(onToggle: (id: number, cat: TraitCategory, isMod: boolean) => void) {
 	const [rollingCategory, setRollingCategory] = useState<number | null>(null);

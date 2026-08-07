@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import type { Document, TraitCategory } from "../../../../types/document";
+import type { Document, TraitCategory } from "../../../../schemas/documentSchema";
 import type { BuildStats } from "../../../../types/jumper";
 import { TabsContent } from "../../../ui/tabs";
 import { Button } from "../../../ui/button";

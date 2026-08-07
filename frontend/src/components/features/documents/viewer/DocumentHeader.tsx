@@ -1,4 +1,4 @@
-import type { Document } from "../../../../types/document";
+import type { Document } from "../../../../schemas/documentSchema";
 import { DialogTitle } from "../../../ui/dialog";
 import { MarkdownViewer } from "../../../ui/MarkdownViewer";
 

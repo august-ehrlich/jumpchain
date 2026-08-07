@@ -1,4 +1,4 @@
-import type { TraitCategory } from "../../../../types/document";
+import type { TraitCategory } from "../../../../schemas/documentSchema";
 import { useState } from "react";
 import { Input } from "../../../ui/input";
 import { Button } from "../../../ui/button";
@@ -11,7 +11,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "../../../ui/select";
-import { getTraitNameById } from "../../../../utils/documentUtils"; // Import utility
+import { getTraitNameById } from "../../../../constants/document"; // Import utility
 
 export function DiscountPicker({
 	currentTraitId,

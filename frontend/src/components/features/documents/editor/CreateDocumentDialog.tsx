@@ -3,7 +3,7 @@ import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { documentApi } from "../../../../api/documents";
 import { documentSchema, type DocumentFormData } from "../../../../schemas/documentSchema";
-import { defaultDocumentState } from "../../../../constants/documentDefaults";
+import { defaultDocumentState } from "../../../../constants/document";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "../../../ui/dialog";
 import { Button } from "../../../ui/button";

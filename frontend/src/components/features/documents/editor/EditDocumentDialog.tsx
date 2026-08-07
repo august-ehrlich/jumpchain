@@ -2,7 +2,7 @@ import { useState, useEffect, useTransition } from "react";
 import { useForm, FormProvider, useFieldArray, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { documentSchema, type DocumentFormData } from "../../../../schemas/documentSchema";
-import type { Document } from "../../../../types/document";
+import type { Document } from "../../../../schemas/documentSchema";
 import { documentApi } from "../../../../api/documents";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "../../../ui/dialog";

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { Jumper, Build } from "../../../../types/jumper";
-import type { Document } from "../../../../types/document";
+import type { Document } from "../../../../schemas/documentSchema";
 import { Card, CardHeader, CardTitle, CardDescription } from "../../../ui/card";
 import { Button, buttonVariants } from "../../../ui/button";
 import {

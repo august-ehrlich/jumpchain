@@ -1,4 +1,4 @@
-import type { Document } from "../../../../types/document";
+import type { Document } from "../../../../schemas/documentSchema";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../../ui/tabs";
 import { TraitList } from "./TraitList";
 import { MarkdownViewer } from "../../../ui/MarkdownViewer";

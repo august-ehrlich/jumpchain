@@ -1,4 +1,4 @@
-import type { Trait, TraitCategory } from "../../../../types/document";
+import type { Trait, TraitCategory } from "../../../../schemas/documentSchema";
 import { Card, CardHeader, CardTitle, CardContent } from "../../../ui/card";
 import { Badge } from "../../../ui/badge";
 import { Check, Lock } from "lucide-react";

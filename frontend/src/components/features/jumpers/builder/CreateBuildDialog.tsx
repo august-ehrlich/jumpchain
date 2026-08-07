@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import type { Document } from "../../../../types/document";
+import type { Document } from "../../../../schemas/documentSchema";
 import type { Build, Jumper } from "../../../../types/jumper";
 import { jumperApi } from "../../../../api/jumpers";
 import { toast } from "sonner";
